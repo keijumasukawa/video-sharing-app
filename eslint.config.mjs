@@ -7,6 +7,13 @@ const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
   eslintConfigPrettier,
+  {
+    // shadcn/ui の生成コードは無改変で維持するため、衝突するルールのみ設定側で無効化する
+    files: ["src/hooks/use-mobile.ts"],
+    rules: {
+      "react-hooks/set-state-in-effect": "off",
+    },
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:
