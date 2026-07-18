@@ -87,7 +87,14 @@ pnpm install   # 依存関係のインストール
 pnpm dev       # 開発サーバーの起動
 ```
 
-環境変数(Supabase・Mux の接続情報)は `.env.local` に設定する。必要な変数の一覧はスキャフォールド後に記載する。
+環境変数は `.env.local` に設定する。
+
+| 変数名 | 説明 |
+| --- | --- |
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase プロジェクトのURL |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase の Publishable key |
+
+Mux の環境変数は連携実装時に追記する。
 
 ## 開発コマンド
 
