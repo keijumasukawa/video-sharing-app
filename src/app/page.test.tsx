@@ -1,8 +1,12 @@
-import { expect, test } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { redirect } from "next/navigation";
+import { expect, test, vi } from "vitest";
 import Home from "./page";
 
-test("トップページに見出しが表示される", () => {
-  render(<Home />);
-  expect(screen.getByRole("heading", { level: 1 })).toBeDefined();
+vi.mock("next/navigation", () => ({
+  redirect: vi.fn(),
+}));
+
+test("トップページは /videos へリダイレクトする", () => {
+  Home();
+  expect(redirect).toHaveBeenCalledWith("/videos");
 });
