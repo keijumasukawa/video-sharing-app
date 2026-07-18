@@ -1,0 +1,39 @@
+name: バグ報告
+description: 動作しない・期待と異なる挙動を報告する
+title: "bug: [概要]"
+labels: []
+body:
+  - type: textarea
+    id: steps
+    attributes:
+      label: 再現手順
+      description: バグを再現させる手順を順番に記載する
+      placeholder: |
+        1. `pnpm dev` を実行する
+        2. http://localhost:3000 を開く
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期待される動作
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: 実際の動作
+      description: エラーメッセージやログがあれば貼り付ける
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: 環境
+      description: OS・ブラウザ・Node.js のバージョンなど(任意)
+      placeholder: |
+        - OS: Windows 11
+        - ブラウザ: Chrome 138
+    validations:
+      required: false

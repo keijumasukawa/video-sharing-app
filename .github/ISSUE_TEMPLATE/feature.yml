@@ -1,0 +1,33 @@
+name: 機能追加・変更
+description: 新機能の追加や既存機能の変更を提案する
+title: "[分野]: [概要]"
+labels: []
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: 内容
+      description: 何を実装・変更するのかを箇条書きで記載する
+      placeholder: |
+        - 実装する機能や変更点
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: 完了条件
+      description: この Issue が完了したと判断できる条件を記載する
+      placeholder: |
+        - 動作として確認できる条件
+        - `pnpm build` / `pnpm lint` / `pnpm test` が通る
+    validations:
+      required: true
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: 依存する Issue
+      description: 先に完了している必要がある Issue があれば記載する(任意)
+      placeholder: |
+        - #番号
+    validations:
+      required: false
