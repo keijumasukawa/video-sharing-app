@@ -93,6 +93,7 @@ pnpm dev       # 開発サーバーの起動
 | --- | --- |
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase プロジェクトのURL |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase の Publishable key |
+| `DATABASE_URL` | Supabase PostgreSQL の接続文字列(Transaction pooler) |
 
 Mux の環境変数は連携実装時に追記する。
 

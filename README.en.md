@@ -93,6 +93,7 @@ Environment variables go in `.env.local`.
 | --- | --- |
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase publishable key |
+| `DATABASE_URL` | Supabase PostgreSQL connection string (Transaction pooler) |
 
 Mux variables will be added when the integration is implemented.
 
