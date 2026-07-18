@@ -87,7 +87,14 @@ pnpm install   # Install dependencies
 pnpm dev       # Start the dev server
 ```
 
-Environment variables (Supabase and Mux credentials) go in `.env.local`. The full list of required variables will be documented after scaffolding.
+Environment variables go in `.env.local`.
+
+| Variable | Description |
+| --- | --- |
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase publishable key |
+
+Mux variables will be added when the integration is implemented.
 
 ## Development Commands
 
