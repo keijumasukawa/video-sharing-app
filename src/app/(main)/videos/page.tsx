@@ -1,10 +1,14 @@
+import { VideoGrid } from "@/components/videos/video-grid";
+import { HydrateClient, prefetch, trpc } from "@/trpc/server";
+
+export const dynamic = "force-dynamic";
+
 export default function VideosPage() {
+  prefetch(trpc.videos.list.queryOptions());
+
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-semibold">Videos</h1>
-      <p className="mt-2 text-muted-foreground">
-        Public videos will be displayed here.
-      </p>
-    </div>
+    <HydrateClient>
+      <VideoGrid />
+    </HydrateClient>
   );
 }
