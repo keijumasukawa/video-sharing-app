@@ -70,6 +70,7 @@ Video files are uploaded directly from the browser to Mux (Direct Upload), and a
 │   ├── constants/       # Constants
 │   ├── db/              # Drizzle schema & DB connection
 │   ├── lib/             # Supabase / Mux clients, etc.
+│   ├── proxy.ts         # Session refresh & auth redirect (Supabase Auth)
 │   ├── trpc/            # tRPC init, routers, client/server proxies
 │   └── types/           # Shared types not going through tRPC
 ├── drizzle.config.ts    # Drizzle Kit configuration
