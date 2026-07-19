@@ -30,17 +30,9 @@ export async function updateSession(request: NextRequest) {
   );
 
   // createServerClient と getClaims の間に処理を挟まないこと(公式の注意事項)。
-  // getClaims がトークンの検証と期限切れトークンのリフレッシュを行う
-  const { data } = await supabase.auth.getClaims();
-  const user = data?.claims;
-
-  // 未認証で認証必須ページへアクセスした場合は動画一覧へリダイレクトする
-  // (ログインはヘッダーのダイアログから行うため、専用のログインページは持たない)
-  if (!user && request.nextUrl.pathname.startsWith("/my-videos")) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/videos";
-    return NextResponse.redirect(url);
-  }
+  // getClaims がトークンの検証と期限切れトークンのリフレッシュを行う。
+  // 認可(未認証時の表示切替・API 拒否)はページ側と tRPC の protectedProcedure で行う
+  await supabase.auth.getClaims();
 
   // supabaseResponse は必ずそのまま返すこと(公式の注意事項)。
   // 新しいレスポンスに差し替える場合は request と cookie を引き継がないと、

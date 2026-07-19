@@ -1,16 +1,12 @@
 import { initTRPC, TRPCError } from "@trpc/server";
 import { cache } from "react";
 import superjson from "superjson";
-import { createClient } from "@/lib/supabase/server";
+import { getAuthUser } from "@/lib/auth";
 
 export const createTRPCContext = cache(async () => {
-  const supabase = await createClient();
-  const { data } = await supabase.auth.getClaims();
-  const claims = data?.claims;
-
   return {
-    // 認証済みの場合のみユーザー情報を保持する(claims.sub = auth.users の id)
-    user: claims ? { id: claims.sub } : null,
+    // 認証済みの場合のみユーザー情報を保持する(未認証なら null)
+    user: await getAuthUser(),
   };
 });
 
