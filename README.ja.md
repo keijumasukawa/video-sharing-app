@@ -70,6 +70,7 @@
 │   ├── constants/       # 定数
 │   ├── db/              # Drizzle スキーマ・DB接続
 │   ├── lib/             # Supabase / Mux クライアント等
+│   ├── proxy.ts         # セッション更新・認証リダイレクト(Supabase Auth)
 │   ├── trpc/            # tRPC 初期化・ルーター定義・クライアント/サーバー用プロキシ
 │   └── types/           # tRPC を経由しない共有型
 ├── drizzle.config.ts    # Drizzle Kit 設定
