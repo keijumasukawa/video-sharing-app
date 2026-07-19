@@ -20,4 +20,4 @@ Closes #
 
 - [ ] `pnpm lint` が通る
 - [ ] `pnpm test` が通る
-- [ ] README・ドキュメントの更新が必要な場合は更新した(README.en.md の同期を含む)
+- [ ] README・ドキュメントの更新が必要な場合は更新した(README.ja.md の同期を含む)
