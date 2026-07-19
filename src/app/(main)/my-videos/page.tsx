@@ -1,10 +1,10 @@
 import { AuthDialog } from "@/components/auth/auth-dialog";
+import { VideoUploadDialog } from "@/components/videos/video-upload-dialog";
 import { getAuthUser } from "@/lib/auth";
 
 export default async function MyVideosPage() {
   const user = await getAuthUser();
 
-  // 未認証時はリダイレクトせず、ページ内でサインインを促す(YouTube と同様の方式)
   if (!user) {
     return (
       <div className="flex flex-1 flex-col items-center gap-4 p-6 pt-16 text-center">
@@ -19,7 +19,10 @@ export default async function MyVideosPage() {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-semibold">My Videos</h1>
+      <div className="flex items-center justify-between gap-4">
+        <h1 className="text-2xl font-semibold">My Videos</h1>
+        <VideoUploadDialog />
+      </div>
       <p className="mt-2 text-muted-foreground">
         Manage your uploaded videos here.
       </p>
