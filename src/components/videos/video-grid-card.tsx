@@ -15,7 +15,11 @@ interface VideoGridCardProps {
 export function VideoGridCard({ video }: VideoGridCardProps) {
   return (
     <Link href={`/videos/${video.id}`} className="group flex flex-col gap-2">
-      <VideoThumbnail playbackId={video.muxPlaybackId} title={video.title} />
+      <VideoThumbnail
+        playbackId={video.muxPlaybackId}
+        duration={video.duration}
+        title={video.title}
+      />
       <div className="flex flex-col gap-1">
         <p className="line-clamp-2 text-sm font-medium group-hover:text-primary">
           {video.title}

@@ -11,6 +11,7 @@ const baseVideo = {
   muxUploadId: null,
   muxAssetId: null,
   muxPlaybackId: "test-playback-id",
+  duration: 125,
   createdAt: new Date("2026-07-19T11:00:00Z"),
   updatedAt: new Date("2026-07-19T11:00:00Z"),
 };
@@ -66,5 +67,15 @@ describe("VideoGridCard", () => {
     );
     const preview = container.querySelector('img[src*="animated.webp"]');
     expect(preview).toBeNull();
+  });
+
+  it("動画の長さバッジを表示する", () => {
+    render(<VideoGridCard video={baseVideo} />);
+    expect(screen.getByText("2:05")).toBeDefined();
+  });
+
+  it("長さが未取得の場合はバッジを表示しない", () => {
+    render(<VideoGridCard video={{ ...baseVideo, duration: null }} />);
+    expect(screen.queryByText("2:05")).toBeNull();
   });
 });
