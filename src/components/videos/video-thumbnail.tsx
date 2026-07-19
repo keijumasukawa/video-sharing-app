@@ -1,13 +1,19 @@
 import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
 import { THUMBNAIL_FALLBACK } from "@/constants/videos";
+import { formatDuration } from "@/lib/format";
 
 interface VideoThumbnailProps {
   playbackId: string | null;
+  duration: number | null;
   title: string;
 }
 
-export function VideoThumbnail({ playbackId, title }: VideoThumbnailProps) {
+export function VideoThumbnail({
+  playbackId,
+  duration,
+  title,
+}: VideoThumbnailProps) {
   const src = playbackId
     ? `https://image.mux.com/${playbackId}/thumbnail.webp`
     : THUMBNAIL_FALLBACK;
@@ -31,6 +37,11 @@ export function VideoThumbnail({ playbackId, title }: VideoThumbnailProps) {
           className="object-cover opacity-0 group-hover:opacity-100"
           unoptimized
         />
+      )}
+      {duration !== null && (
+        <div className="absolute right-2 bottom-2 rounded bg-black/80 px-1 py-0.5 text-xs font-medium text-white">
+          {formatDuration(duration)}
+        </div>
       )}
     </div>
   );

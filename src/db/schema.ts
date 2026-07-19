@@ -1,4 +1,11 @@
-import { pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import {
+  doublePrecision,
+  pgEnum,
+  pgTable,
+  text,
+  timestamp,
+  uuid,
+} from "drizzle-orm/pg-core";
 
 export const videoStatus = pgEnum("video_status", [
   "waiting",
@@ -16,6 +23,7 @@ export const videos = pgTable("videos", {
   muxUploadId: text("mux_upload_id"),
   muxAssetId: text("mux_asset_id"),
   muxPlaybackId: text("mux_playback_id"),
+  duration: doublePrecision("duration"),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
