@@ -1,11 +1,40 @@
+import { TRPCError } from "@trpc/server";
 import { and, desc, eq, lt, or } from "drizzle-orm";
 import { z } from "zod";
-import { DEFAULT_LIMIT, MAX_LIMIT } from "@/constants/videos";
+import {
+  DEFAULT_LIMIT,
+  DEFAULT_VIDEO_TITLE,
+  MAX_LIMIT,
+} from "@/constants/videos";
 import { db } from "@/db";
 import { videos } from "@/db/schema";
-import { baseProcedure, createTRPCRouter } from "../init";
+import { getMux } from "@/lib/mux";
+import { baseProcedure, createTRPCRouter, protectedProcedure } from "../init";
 
 export const videosRouter = createTRPCRouter({
+  create: protectedProcedure.mutation(async ({ ctx }) => {
+    const upload = await getMux().video.uploads.create({
+      cors_origin: "*",
+      new_asset_settings: {
+        playback_policies: ["public"],
+      },
+    });
+
+    if (!upload.url) {
+      throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    }
+
+    const [video] = await db
+      .insert(videos)
+      .values({
+        userId: ctx.user.id,
+        title: DEFAULT_VIDEO_TITLE,
+        muxUploadId: upload.id,
+      })
+      .returning();
+
+    return { videoId: video.id, uploadUrl: upload.url };
+  }),
   list: baseProcedure
     .input(
       z.object({
@@ -27,8 +56,6 @@ export const videosRouter = createTRPCRouter({
         .where(
           and(
             eq(videos.status, "ready"),
-            // createdAt + id の複合カーソルより古いレコードのみ取得する。
-            // 同時刻の動画があっても取りこぼし・重複が発生しない
             cursor
               ? or(
                   lt(videos.createdAt, cursor.createdAt),
@@ -41,7 +68,6 @@ export const videosRouter = createTRPCRouter({
           ),
         )
         .orderBy(desc(videos.createdAt), desc(videos.id))
-        // 次ページの有無を判定するため1件多く取得する
         .limit(limit + 1);
 
       const hasMore = items.length > limit;
