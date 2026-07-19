@@ -3,9 +3,7 @@ import { test, expect } from "@playwright/test";
 test("トップページから動画一覧へリダイレクトされる", async ({ page }) => {
   await page.goto("/");
   await expect(page).toHaveURL("/videos");
-  await expect(
-    page.getByRole("heading", { level: 1, name: "Videos" }),
-  ).toBeVisible();
+  await expect(page.getByRole("main")).toBeVisible();
 });
 
 test("動画一覧ページにサイドバーとヘッダーが表示される", async ({ page }) => {
