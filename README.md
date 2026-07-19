@@ -62,6 +62,7 @@ Video files are uploaded directly from the browser to Mux (Direct Upload), and a
 │   │   │   └── my-videos/       # Video management (auth required)
 │   │   ├── (player)/            # Player layout
 │   │   │   └── videos/[videoId]/  # Video playback page
+│   │   ├── auth/callback/       # Auth callback endpoint (Supabase Auth)
 │   │   └── api/
 │   │       ├── trpc/[trpc]/     # tRPC endpoint (fetch adapter)
 │   │       └── webhooks/mux/    # Mux webhook handler

@@ -13,7 +13,7 @@ describe("protectedProcedure", () => {
 
   it("認証済みの呼び出しではコンテキストのユーザーを参照できる", async () => {
     const caller = testRouter.createCaller({
-      user: { id: "11111111-1111-1111-1111-111111111111" },
+      user: { id: "11111111-1111-1111-1111-111111111111", email: null },
     });
     await expect(caller.me()).resolves.toBe(
       "11111111-1111-1111-1111-111111111111",

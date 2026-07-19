@@ -62,6 +62,7 @@
 │   │   │   └── my-videos/       # 動画管理(認証必須)
 │   │   ├── (player)/            # プレイヤーレイアウト
 │   │   │   └── videos/[videoId]/  # 動画再生ページ
+│   │   ├── auth/callback/       # 認証コールバックエンドポイント(Supabase Auth)
 │   │   └── api/
 │   │       ├── trpc/[trpc]/     # tRPC エンドポイント(fetch adapter)
 │   │       └── webhooks/mux/    # Mux Webhook ハンドラ
