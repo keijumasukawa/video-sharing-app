@@ -4,6 +4,7 @@ import { MenuIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { Logo } from "@/components/layout/logo";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -15,7 +16,7 @@ import {
 import { isNavItemActive, NAV_ITEMS } from "@/constants/navigation";
 import { cn } from "@/lib/utils";
 
-export function NavDrawer() {
+export function OverlaySidebar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
@@ -23,16 +24,18 @@ export function NavDrawer() {
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger
         render={
-          <Button variant="ghost" size="icon" aria-label="メニューを開く" />
+          <Button variant="ghost" size="icon" aria-label="Open menu" />
         }
       >
         <MenuIcon />
       </SheetTrigger>
       <SheetContent side="left" className="w-64 gap-0 p-0">
-        <SheetHeader className="border-b">
-          <SheetTitle>video-sharing-app</SheetTitle>
+        <SheetHeader className="h-14 flex-row items-center border-b px-4 py-0">
+          <SheetTitle>
+            <Logo />
+          </SheetTitle>
         </SheetHeader>
-        <nav className="flex flex-col gap-1 p-2">
+        <nav aria-label="Main navigation" className="flex flex-col gap-1 p-2">
           {NAV_ITEMS.map((item) => (
             <Link
               key={item.href}

@@ -1,5 +1,5 @@
-import { AppHeader } from "@/components/layout/app-header";
-import { NavDrawer } from "@/components/layout/nav-drawer";
+import { Header } from "@/components/layout/header";
+import { OverlaySidebar } from "@/components/layout/overlay-sidebar";
 
 export default function PlayerLayout({
   children,
@@ -8,7 +8,7 @@ export default function PlayerLayout({
 }>) {
   return (
     <div className="flex min-h-svh flex-col">
-      <AppHeader trigger={<NavDrawer />} />
+      <Header navTrigger={<OverlaySidebar />} />
       <main className="flex flex-1 flex-col">{children}</main>
     </div>
   );
