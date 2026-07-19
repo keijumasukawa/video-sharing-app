@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { APP_NAME } from "@/constants/app";
 import { TRPCReactProvider } from "@/trpc/client";
 import "./globals.css";
 
@@ -16,8 +17,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "video-sharing-app",
-  description: "ブラウザで動作する動画共有アプリケーション",
+  title: APP_NAME,
+  description: "A browser-based video sharing application",
 };
 
 export default function RootLayout({

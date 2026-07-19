@@ -8,8 +8,8 @@ export interface NavItem {
 }
 
 export const NAV_ITEMS: NavItem[] = [
-  { title: "ホーム", href: "/videos", icon: Home },
-  { title: "マイ動画", href: "/my-videos", icon: Video },
+  { title: "Home", href: "/videos", icon: Home },
+  { title: "My Videos", href: "/my-videos", icon: Video },
 ];
 
 export function isNavItemActive(pathname: string, href: string) {

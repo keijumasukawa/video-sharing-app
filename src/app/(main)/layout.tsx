@@ -1,5 +1,5 @@
-import { AppHeader } from "@/components/layout/app-header";
-import { AppSidebar } from "@/components/layout/app-sidebar";
+import { DockedSidebar } from "@/components/layout/docked-sidebar";
+import { Header } from "@/components/layout/header";
 import {
   SidebarInset,
   SidebarProvider,
@@ -12,12 +12,16 @@ export default function MainLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset>
-        <AppHeader trigger={<SidebarTrigger className="-ml-1" />} />
-        <div className="flex flex-1 flex-col">{children}</div>
-      </SidebarInset>
-    </SidebarProvider>
+    <div className="[--header-height:calc(--spacing(14))]">
+      <SidebarProvider className="flex flex-col">
+        <Header navTrigger={<SidebarTrigger className="-ml-2 size-8" />} />
+        <div className="flex flex-1">
+          <DockedSidebar className="top-(--header-height) h-[calc(100svh-var(--header-height))]!" />
+          <SidebarInset>
+            <div className="flex flex-1 flex-col">{children}</div>
+          </SidebarInset>
+        </div>
+      </SidebarProvider>
+    </div>
   );
 }
