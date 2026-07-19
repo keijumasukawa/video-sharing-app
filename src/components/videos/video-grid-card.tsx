@@ -5,7 +5,8 @@ import { formatRelativeTime } from "@/lib/format";
 import type { AppRouter } from "@/trpc/routers/_app";
 import { VideoThumbnail, VideoThumbnailSkeleton } from "./video-thumbnail";
 
-type VideoListItem = inferRouterOutputs<AppRouter>["videos"]["list"][number];
+type VideoListItem =
+  inferRouterOutputs<AppRouter>["videos"]["list"]["items"][number];
 
 interface VideoGridCardProps {
   video: VideoListItem;
