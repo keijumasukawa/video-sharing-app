@@ -1,10 +1,13 @@
-import { formatDistanceToNow } from "date-fns";
+import { format, formatDistanceToNow } from "date-fns";
 
 export function formatRelativeTime(date: Date): string {
   return formatDistanceToNow(date, { addSuffix: true });
 }
 
-// 動画の長さ(秒)を「M:SS」または「H:MM:SS」形式に変換する
+export function formatDate(date: Date): string {
+  return format(date, "d MMM yyyy");
+}
+
 export function formatDuration(seconds: number): string {
   const total = Math.floor(seconds);
   const hours = Math.floor(total / 3600);
