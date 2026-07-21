@@ -55,6 +55,12 @@ vi.mock("./video-edit-dialog", () => ({
     video ? <div>editing:{video.title}</div> : null,
 }));
 
+vi.mock("./video-delete-button", () => ({
+  VideoDeleteButton: ({ ids }: { ids: string[] }) => (
+    <button type="button">Delete ({ids.length})</button>
+  ),
+}));
+
 vi.mock("@/trpc/client", () => ({
   useTRPC: () => ({
     videos: {
@@ -126,6 +132,50 @@ describe("VideoTable", () => {
     expect(screen.queryByText("editing:Test Video")).toBeNull();
     fireEvent.click(screen.getByText("Test Video"));
     expect(screen.getByText("editing:Test Video")).toBeDefined();
+  });
+
+  it("行のチェックボックスを選択すると削除ボタンが表示される", () => {
+    mockVideos([baseVideo]);
+    render(<VideoTable />);
+
+    expect(screen.queryByText("Delete (1)")).toBeNull();
+    fireEvent.click(screen.getByRole("checkbox", { name: "Select video" }));
+
+    expect(screen.getByText("1 selected")).toBeDefined();
+    expect(screen.getByText("Delete (1)")).toBeDefined();
+  });
+
+  it("ヘッダーのチェックボックスで全選択できる", () => {
+    mockVideos([
+      baseVideo,
+      { ...baseVideo, id: "33333333-3333-3333-3333-333333333333" },
+    ]);
+    render(<VideoTable />);
+
+    fireEvent.click(screen.getByRole("checkbox", { name: "Select all" }));
+
+    expect(screen.getByText("2 selected")).toBeDefined();
+    expect(screen.getByText("Delete (2)")).toBeDefined();
+  });
+
+  it("全選択済みのヘッダーのチェックボックスで全解除できる", () => {
+    mockVideos([baseVideo]);
+    render(<VideoTable />);
+
+    const selectAll = screen.getByRole("checkbox", { name: "Select all" });
+    fireEvent.click(selectAll);
+    fireEvent.click(selectAll);
+
+    expect(screen.queryByText("1 selected")).toBeNull();
+  });
+
+  it("チェックボックスの選択では編集ダイアログを開かない", () => {
+    mockVideos([baseVideo]);
+    render(<VideoTable />);
+
+    fireEvent.click(screen.getByRole("checkbox", { name: "Select video" }));
+
+    expect(screen.queryByText("editing:Test Video")).toBeNull();
   });
 
   it("動画がない場合もアップロードボタンを表示する", () => {

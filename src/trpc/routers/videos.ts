@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { and, desc, eq, lt, or, type SQL } from "drizzle-orm";
+import { and, desc, eq, inArray, lt, or, type SQL } from "drizzle-orm";
 import { z } from "zod";
 import {
   DEFAULT_LIMIT,
@@ -111,6 +111,34 @@ export const videosRouter = createTRPCRouter({
       }
 
       return video;
+    }),
+  remove: protectedProcedure
+    .input(z.object({ ids: z.array(z.uuid()).min(1) }))
+    .mutation(async ({ ctx, input }) => {
+      const removed = await db
+        .delete(videos)
+        .where(
+          and(inArray(videos.id, input.ids), eq(videos.userId, ctx.user.id)),
+        )
+        .returning();
+
+      if (removed.length === 0) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+
+      const results = await Promise.allSettled(
+        removed
+          .map((video) => video.muxAssetId)
+          .filter((assetId): assetId is string => assetId !== null)
+          .map((assetId) => getMux().video.assets.delete(assetId)),
+      );
+      for (const result of results) {
+        if (result.status === "rejected") {
+          console.error("Failed to delete Mux asset:", result.reason);
+        }
+      }
+
+      return { deletedCount: removed.length };
     }),
   getOne: baseProcedure
     .input(z.object({ id: z.uuid() }))
