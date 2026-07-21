@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { and, desc, eq, lt, or } from "drizzle-orm";
+import { and, desc, eq, lt, or, type SQL } from "drizzle-orm";
 import { z } from "zod";
 import {
   DEFAULT_LIMIT,
@@ -10,6 +10,56 @@ import { db } from "@/db";
 import { videos } from "@/db/schema";
 import { getMux } from "@/lib/mux";
 import { baseProcedure, createTRPCRouter, protectedProcedure } from "../init";
+
+const cursorSchema = z
+  .object({
+    createdAt: z.date(),
+    id: z.uuid(),
+  })
+  .nullish();
+
+const paginationSchema = z.object({
+  cursor: cursorSchema,
+  limit: z.number().int().min(1).max(MAX_LIMIT).default(DEFAULT_LIMIT),
+});
+
+type Pagination = z.infer<typeof paginationSchema>;
+
+function afterCursor(cursor: Pagination["cursor"]) {
+  if (!cursor) {
+    return undefined;
+  }
+
+  return or(
+    lt(videos.createdAt, cursor.createdAt),
+    and(eq(videos.createdAt, cursor.createdAt), lt(videos.id, cursor.id)),
+  );
+}
+
+async function paginateVideos(
+  { cursor, limit }: Pagination,
+  filter: SQL | undefined,
+) {
+  const items = await db
+    .select()
+    .from(videos)
+    .where(and(filter, afterCursor(cursor)))
+    .orderBy(desc(videos.createdAt), desc(videos.id))
+    .limit(limit + 1);
+
+  const hasMore = items.length > limit;
+  if (hasMore) {
+    items.pop();
+  }
+
+  const lastItem = items.at(-1);
+  const nextCursor =
+    hasMore && lastItem
+      ? { createdAt: lastItem.createdAt, id: lastItem.id }
+      : null;
+
+  return { items, nextCursor };
+}
 
 export const videosRouter = createTRPCRouter({
   create: protectedProcedure.mutation(async ({ ctx }) => {
@@ -50,52 +100,14 @@ export const videosRouter = createTRPCRouter({
 
       return video;
     }),
+  getMine: protectedProcedure
+    .input(paginationSchema)
+    .query(async ({ ctx, input }) =>
+      paginateVideos(input, eq(videos.userId, ctx.user.id)),
+    ),
   list: baseProcedure
-    .input(
-      z.object({
-        cursor: z
-          .object({
-            createdAt: z.date(),
-            id: z.uuid(),
-          })
-          .nullish(),
-        limit: z.number().int().min(1).max(MAX_LIMIT).default(DEFAULT_LIMIT),
-      }),
-    )
-    .query(async ({ input }) => {
-      const { cursor, limit } = input;
-
-      const items = await db
-        .select()
-        .from(videos)
-        .where(
-          and(
-            eq(videos.status, "ready"),
-            cursor
-              ? or(
-                  lt(videos.createdAt, cursor.createdAt),
-                  and(
-                    eq(videos.createdAt, cursor.createdAt),
-                    lt(videos.id, cursor.id),
-                  ),
-                )
-              : undefined,
-          ),
-        )
-        .orderBy(desc(videos.createdAt), desc(videos.id))
-        .limit(limit + 1);
-
-      const hasMore = items.length > limit;
-      if (hasMore) {
-        items.pop();
-      }
-
-      const lastItem = items.at(-1);
-      const nextCursor =
-        hasMore && lastItem
-          ? { createdAt: lastItem.createdAt, id: lastItem.id }
-          : null;
-
-      return { items, nextCursor };
-    }),
+    .input(paginationSchema)
+    .query(async ({ input }) =>
+      paginateVideos(input, eq(videos.status, "ready")),
+    ),
 });

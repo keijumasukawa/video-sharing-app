@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { formatDuration, formatRelativeTime } from "./format";
+import { formatDate, formatDuration, formatRelativeTime } from "./format";
 
 describe("formatRelativeTime", () => {
   beforeEach(() => {
@@ -19,6 +19,13 @@ describe("formatRelativeTime", () => {
   it("数日前の日時を相対表記で返す", () => {
     const date = new Date("2026-07-16T12:00:00Z");
     expect(formatRelativeTime(date)).toBe("3 days ago");
+  });
+});
+
+describe("formatDate", () => {
+  it("日付を「d MMM yyyy」形式で返す", () => {
+    expect(formatDate(new Date("2026-07-19T11:00:00Z"))).toBe("19 Jul 2026");
+    expect(formatDate(new Date("2026-01-05T00:00:00Z"))).toBe("5 Jan 2026");
   });
 });
 

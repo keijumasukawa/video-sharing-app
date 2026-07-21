@@ -1,6 +1,10 @@
 import { AuthDialog } from "@/components/auth/auth-dialog";
-import { VideoUploadDialog } from "@/components/videos/video-upload-dialog";
+import { VideoTable } from "@/components/videos/video-table";
+import { DEFAULT_LIMIT } from "@/constants/videos";
 import { getAuthUser } from "@/lib/auth";
+import { HydrateClient, prefetch, trpc } from "@/trpc/server";
+
+export const dynamic = "force-dynamic";
 
 export default async function MyVideosPage() {
   const user = await getAuthUser();
@@ -17,15 +21,16 @@ export default async function MyVideosPage() {
     );
   }
 
+  prefetch(
+    trpc.videos.getMine.infiniteQueryOptions(
+      { limit: DEFAULT_LIMIT },
+      { getNextPageParam: (lastPage) => lastPage.nextCursor },
+    ),
+  );
+
   return (
-    <div className="p-6">
-      <div className="flex items-center justify-between gap-4">
-        <h1 className="text-2xl font-semibold">My Videos</h1>
-        <VideoUploadDialog />
-      </div>
-      <p className="mt-2 text-muted-foreground">
-        Manage your uploaded videos here.
-      </p>
-    </div>
+    <HydrateClient>
+      <VideoTable />
+    </HydrateClient>
   );
 }

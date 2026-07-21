@@ -1,8 +1,7 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CheckCircle2Icon, PlusIcon } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ResponsiveModal } from "@/components/responsive-modal";
 import { Button } from "@/components/ui/button";
@@ -12,15 +11,17 @@ import { VideoUploader } from "./video-uploader";
 export function VideoUploadDialog() {
   const [open, setOpen] = useState(false);
   const [isUploaded, setIsUploaded] = useState(false);
-  const router = useRouter();
   const trpc = useTRPC();
+  const queryClient = useQueryClient();
   const createVideo = useMutation(trpc.videos.create.mutationOptions());
 
   const handleOpenChange = (nextOpen: boolean) => {
     setOpen(nextOpen);
     if (!nextOpen) {
       if (isUploaded) {
-        router.refresh();
+        void queryClient.invalidateQueries(
+          trpc.videos.getMine.infiniteQueryFilter(),
+        );
       }
       setIsUploaded(false);
     }
