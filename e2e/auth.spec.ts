@@ -26,6 +26,8 @@ test("認証ダイアログをサインアップ表示に切り替えられる",
 
   const dialog = page.getByRole("dialog");
   await dialog.getByRole("button", { name: "Sign up" }).click();
+  await expect(dialog.getByLabel("First name")).toBeVisible();
+  await expect(dialog.getByLabel("Last name")).toBeVisible();
   await expect(dialog.getByLabel("Confirm password")).toBeVisible();
 });
 
