@@ -39,20 +39,24 @@ export default async function VideoPage({ params }: VideoPageProps) {
           <p className="text-sm text-white/60">Video is being processed...</p>
         )}
       </div>
-      <div className="mx-auto w-full max-w-4xl px-4 py-8">
-        <h1 className="text-2xl font-semibold">{video.title}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {formatRelativeTime(video.createdAt)}
-        </p>
-        <div className="mt-4 flex items-center gap-3">
-          <UserAvatar user={video.user} size="lg" />
-          <p className="text-sm font-medium">{formatUserName(video.user)}</p>
+      <div className="flex-1 bg-card">
+        <div className="mx-auto w-full max-w-4xl px-4 py-8">
+          <h1 className="text-2xl font-semibold">{video.title}</h1>
+          <div className="mt-4 flex items-center gap-3">
+            <UserAvatar user={video.user} size="lg" />
+            <p className="text-sm font-medium">{formatUserName(video.user)}</p>
+          </div>
+          <div className="mt-4 rounded-xl bg-muted/50 p-4">
+            <p className="text-sm font-medium">
+              {formatRelativeTime(video.createdAt)}
+            </p>
+            {video.description && (
+              <p className="mt-2 text-sm whitespace-pre-wrap">
+                {video.description}
+              </p>
+            )}
+          </div>
         </div>
-        {video.description && (
-          <p className="mt-6 whitespace-pre-wrap text-sm">
-            {video.description}
-          </p>
-        )}
       </div>
     </>
   );
