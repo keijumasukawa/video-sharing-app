@@ -1,7 +1,8 @@
 "use client";
 
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
-import { Suspense } from "react";
+import type { inferRouterOutputs } from "@trpc/server";
+import { Suspense, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { InfiniteScroll } from "@/components/infinite-scroll";
 import { Badge } from "@/components/ui/badge";
@@ -21,10 +22,15 @@ import {
 } from "@/constants/videos";
 import { formatDate } from "@/lib/format";
 import { useTRPC } from "@/trpc/client";
+import type { AppRouter } from "@/trpc/routers/_app";
+import { VideoEditDialog } from "./video-edit-dialog";
 import { VideoThumbnail } from "./video-thumbnail";
 import { VideoUploadDialog } from "./video-upload-dialog";
 
 const SKELETON_COUNT = 5;
+
+type VideoListItem =
+  inferRouterOutputs<AppRouter>["videos"]["getMine"]["items"][number];
 
 export function VideoTable() {
   return (
@@ -65,13 +71,13 @@ function VideoTableHeader() {
 
 function VideoTableContent() {
   const trpc = useTRPC();
+  const [editingVideo, setEditingVideo] = useState<VideoListItem | null>(null);
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useSuspenseInfiniteQuery(
       trpc.videos.getMine.infiniteQueryOptions(
         { limit: DEFAULT_LIMIT },
         {
           getNextPageParam: (lastPage) => lastPage.nextCursor,
-          // エンコードの完了を反映するため、処理中の動画があるあいだだけ再取得する
           refetchInterval: (query) => {
             const items =
               query.state.data?.pages.flatMap((page) => page.items) ?? [];
@@ -87,6 +93,14 @@ function VideoTableContent() {
 
   return (
     <>
+      <VideoEditDialog
+        video={editingVideo}
+        onOpenChange={(open) => {
+          if (!open) {
+            setEditingVideo(null);
+          }
+        }}
+      />
       <StickyBar />
       {videos.length === 0 ? (
         <p className="text-muted-foreground p-4 text-sm">
@@ -98,7 +112,11 @@ function VideoTableContent() {
             <VideoTableHeader />
             <TableBody>
               {videos.map((video) => (
-                <TableRow key={video.id}>
+                <TableRow
+                  key={video.id}
+                  className="cursor-pointer"
+                  onClick={() => setEditingVideo(video)}
+                >
                   <TableCell>
                     <div className="flex items-center gap-4">
                       <div className="w-36 shrink-0">
