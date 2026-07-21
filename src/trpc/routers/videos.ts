@@ -35,6 +35,21 @@ export const videosRouter = createTRPCRouter({
 
     return { videoId: video.id, uploadUrl: upload.url };
   }),
+  getOne: baseProcedure
+    .input(z.object({ id: z.uuid() }))
+    .query(async ({ input }) => {
+      const [video] = await db
+        .select()
+        .from(videos)
+        .where(and(eq(videos.id, input.id), eq(videos.status, "ready")))
+        .limit(1);
+
+      if (!video) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+
+      return video;
+    }),
   list: baseProcedure
     .input(
       z.object({
