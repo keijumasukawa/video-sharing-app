@@ -36,6 +36,8 @@ const signInSchema = z.object({
 
 const signUpSchema = z
   .object({
+    firstName: z.string().trim().min(1, "Enter your first name"),
+    lastName: z.string().trim().min(1, "Enter your last name"),
     email: z.email("Enter a valid email address"),
     password: z
       .string()
@@ -217,7 +219,13 @@ function SignUpForm({
   const [serverError, setServerError] = useState<string | null>(null);
   const form = useForm<z.infer<typeof signUpSchema>>({
     resolver: zodResolver(signUpSchema),
-    defaultValues: { email: "", password: "", confirmPassword: "" },
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
   });
 
   const onSubmit = async (values: z.infer<typeof signUpSchema>) => {
@@ -227,6 +235,11 @@ function SignUpForm({
       email: values.email,
       password: values.password,
       options: {
+        // サインアップ時の DB トリガーが raw_user_meta_data から読み取り profiles を作成する
+        data: {
+          first_name: values.firstName,
+          last_name: values.lastName,
+        },
         // 確認メールのリンクを検証した後、コールバック経由で動画一覧へ戻す
         emailRedirectTo: `${window.location.origin}/auth/callback?next=/videos`,
       },
@@ -247,6 +260,46 @@ function SignUpForm({
       </DialogHeader>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <FieldGroup>
+          <div className="grid grid-cols-2 gap-4">
+            <Controller
+              name="firstName"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="sign-up-first-name">
+                    First name
+                  </FieldLabel>
+                  <Input
+                    {...field}
+                    id="sign-up-first-name"
+                    autoComplete="given-name"
+                    aria-invalid={fieldState.invalid}
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+            <Controller
+              name="lastName"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="sign-up-last-name">Last name</FieldLabel>
+                  <Input
+                    {...field}
+                    id="sign-up-last-name"
+                    autoComplete="family-name"
+                    aria-invalid={fieldState.invalid}
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+          </div>
           <Controller
             name="email"
             control={form.control}

@@ -57,6 +57,24 @@ describe("AuthDialog", () => {
     expect(await dialog.findByLabelText("Confirm password")).toBeDefined();
   });
 
+  it("サインアップ表示に氏名の入力欄が表示される", async () => {
+    const dialog = openDialog();
+    fireEvent.click(dialog.getByRole("button", { name: "Sign up" }));
+    expect(await dialog.findByLabelText("First name")).toBeDefined();
+    expect(await dialog.findByLabelText("Last name")).toBeDefined();
+  });
+
+  it("氏名が未入力の場合はサインアップできない", async () => {
+    const dialog = openDialog();
+    fireEvent.click(dialog.getByRole("button", { name: "Sign up" }));
+    await dialog.findByLabelText("First name");
+
+    fireEvent.click(dialog.getByRole("button", { name: "Sign up" }));
+
+    expect(await dialog.findByText("Enter your first name")).toBeDefined();
+    expect(await dialog.findByText("Enter your last name")).toBeDefined();
+  });
+
   it("Sign up ボタンからサインアップフォームを直接開ける", async () => {
     render(<AuthDialog />);
     fireEvent.click(screen.getByRole("button", { name: "Sign up" }));
