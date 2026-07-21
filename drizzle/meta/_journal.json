@@ -29,6 +29,20 @@
       "when": 1784637675406,
       "tag": "0003_add_profile_trigger",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1784641798543,
+      "tag": "0004_dizzy_la_nuit",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1784641813799,
+      "tag": "0005_add_profiles_auth_fk",
+      "breakpoints": true
     }
   ]
 }

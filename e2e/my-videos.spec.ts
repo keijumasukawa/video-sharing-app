@@ -12,9 +12,11 @@ async function signInAndWaitForList(page: Page) {
 
   await expect(page.getByRole("heading", { name: "My Videos" })).toBeVisible();
 
-  const firstRow = page.getByRole("row").nth(1);
+  const firstCheckbox = page
+    .getByRole("checkbox", { name: "Select video" })
+    .first();
   const emptyState = page.getByText("You have not uploaded any videos yet.");
-  await expect(firstRow.or(emptyState).first()).toBeVisible();
+  await expect(firstCheckbox.or(emptyState).first()).toBeVisible();
 
   return { hasVideos: !(await emptyState.isVisible()) };
 }

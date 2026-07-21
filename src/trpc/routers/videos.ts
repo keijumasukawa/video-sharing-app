@@ -101,7 +101,6 @@ export const videosRouter = createTRPCRouter({
         .set({
           title: input.title,
           description: input.description || null,
-          updatedAt: new Date(),
         })
         .where(and(eq(videos.id, input.id), eq(videos.userId, ctx.user.id)))
         .returning();

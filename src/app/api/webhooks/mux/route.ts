@@ -25,7 +25,6 @@ export async function POST(request: Request) {
           .set({
             muxAssetId: event.data.asset_id,
             status: "preparing",
-            updatedAt: new Date(),
           })
           .where(eq(videos.muxUploadId, event.data.id));
       }
@@ -40,7 +39,6 @@ export async function POST(request: Request) {
             status: "ready",
             muxPlaybackId: event.data.playback_ids?.[0]?.id ?? null,
             duration: event.data.duration ?? null,
-            updatedAt: new Date(),
           })
           .where(eq(videos.muxUploadId, event.data.upload_id));
       }
@@ -51,7 +49,7 @@ export async function POST(request: Request) {
       if (event.data.upload_id) {
         await db
           .update(videos)
-          .set({ status: "errored", updatedAt: new Date() })
+          .set({ status: "errored" })
           .where(eq(videos.muxUploadId, event.data.upload_id));
       }
       break;
