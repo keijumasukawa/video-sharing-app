@@ -2,7 +2,6 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { inferRouterOutputs } from "@trpc/server";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { ResponsiveModal } from "@/components/responsive-modal";
@@ -18,7 +17,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { VIDEO_UPDATE_SUCCESS_MESSAGE } from "@/constants/messages";
 import { DESCRIPTION_MAX_LENGTH, TITLE_MAX_LENGTH } from "@/constants/videos";
 import { useTRPC } from "@/trpc/client";
-import type { AppRouter } from "@/trpc/routers/_app";
+import type { RouterOutputs } from "@/trpc/types";
 
 const editSchema = z.object({
   title: z
@@ -40,8 +39,7 @@ const editSchema = z.object({
 
 type EditValues = z.infer<typeof editSchema>;
 
-type VideoListItem =
-  inferRouterOutputs<AppRouter>["videos"]["getMine"]["items"][number];
+type VideoListItem = RouterOutputs["videos"]["getMine"]["items"][number];
 
 type EditableVideo = Pick<VideoListItem, "id" | "title" | "description">;
 

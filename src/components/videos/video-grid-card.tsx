@@ -1,12 +1,10 @@
-import type { inferRouterOutputs } from "@trpc/server";
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatRelativeTime } from "@/lib/format";
-import type { AppRouter } from "@/trpc/routers/_app";
+import type { RouterOutputs } from "@/trpc/types";
 import { VideoThumbnail, VideoThumbnailSkeleton } from "./video-thumbnail";
 
-type VideoListItem =
-  inferRouterOutputs<AppRouter>["videos"]["list"]["items"][number];
+type VideoListItem = RouterOutputs["videos"]["list"]["items"][number];
 
 interface VideoGridCardProps {
   video: VideoListItem;
