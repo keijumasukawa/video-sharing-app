@@ -4,6 +4,7 @@ import {
   formatDuration,
   formatRelativeTime,
   formatUserName,
+  stripFileExtension,
 } from "./format";
 
 describe("formatRelativeTime", () => {
@@ -46,6 +47,20 @@ describe("formatUserName", () => {
     expect(formatUserName({ firstName: "", lastName: "Yamada" })).toBe(
       "Yamada",
     );
+  });
+});
+
+describe("stripFileExtension", () => {
+  it("拡張子を除いたファイル名を返す", () => {
+    expect(stripFileExtension("my-video.mp4")).toBe("my-video");
+  });
+
+  it("ドットを複数含む場合は最後の拡張子のみ除く", () => {
+    expect(stripFileExtension("my.video.mp4")).toBe("my.video");
+  });
+
+  it("拡張子がない場合はそのまま返す", () => {
+    expect(stripFileExtension("my-video")).toBe("my-video");
   });
 });
 
