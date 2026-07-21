@@ -18,7 +18,7 @@ export default async function MainLayout({
     <div className="[--header-height:calc(--spacing(14))]">
       <SidebarProvider className="flex flex-col">
         <Header
-          navTrigger={<SidebarTrigger className="-ml-2 size-8" />}
+          navTrigger={<SidebarTrigger size="icon" />}
           user={user}
         />
         <div className="flex flex-1">

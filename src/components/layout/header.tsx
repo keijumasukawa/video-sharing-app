@@ -14,7 +14,7 @@ export function Header({ navTrigger, user }: HeaderProps) {
   return (
     <header className="sticky top-0 z-50 flex h-[var(--header-height,3.5rem)] w-full items-center border-b bg-background">
       <div className="flex h-full flex-1 shrink-0 items-center gap-2 px-4 md:w-[var(--sidebar-width,16rem)]">
-        {navTrigger}
+        <div className="-ml-2 flex items-center">{navTrigger}</div>
         <Separator orientation="vertical" className="-ml-px h-full" />
         <Link href="/videos">
           <Logo />

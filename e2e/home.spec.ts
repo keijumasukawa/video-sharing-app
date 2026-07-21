@@ -41,9 +41,9 @@ test("テーマをダークに切り替えられる", async ({ page }) => {
 test("動画再生ページではナビゲーションがドロワー表示になる", async ({
   page,
 }) => {
-  await page.goto("/videos/test-video-id");
+  await page.goto("/videos/00000000-0000-4000-8000-000000000000");
   await expect(
-    page.getByRole("heading", { level: 1, name: "Video" }),
+    page.getByRole("heading", { level: 1, name: "Video not found" }),
   ).toBeVisible();
 
   await expect(page.getByRole("link", { name: "My Videos" })).toBeHidden();
