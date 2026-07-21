@@ -1,7 +1,6 @@
 "use client";
 
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
-import type { inferRouterOutputs } from "@trpc/server";
 import { Suspense, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { InfiniteScroll } from "@/components/infinite-scroll";
@@ -23,7 +22,7 @@ import {
 } from "@/constants/videos";
 import { formatDate } from "@/lib/format";
 import { useTRPC } from "@/trpc/client";
-import type { AppRouter } from "@/trpc/routers/_app";
+import type { RouterOutputs } from "@/trpc/types";
 import { VideoDeleteButton } from "./video-delete-button";
 import { VideoEditDialog } from "./video-edit-dialog";
 import { VideoThumbnail } from "./video-thumbnail";
@@ -31,8 +30,7 @@ import { VideoUploadDialog } from "./video-upload-dialog";
 
 const SKELETON_COUNT = 5;
 
-type VideoListItem =
-  inferRouterOutputs<AppRouter>["videos"]["getMine"]["items"][number];
+type VideoListItem = RouterOutputs["videos"]["getMine"]["items"][number];
 
 export function VideoTable() {
   return (
