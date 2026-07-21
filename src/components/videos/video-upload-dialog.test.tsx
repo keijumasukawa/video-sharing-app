@@ -4,13 +4,20 @@ import {
   fireEvent,
   render,
   screen,
+  waitFor,
   within,
 } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { UPLOAD_SUCCESS_MESSAGE } from "@/constants/messages";
 import { VideoUploadDialog } from "./video-upload-dialog";
 
-vi.mock("next/navigation", () => ({
-  useRouter: () => ({ refresh: vi.fn() }),
+const { notifySuccessMock } = vi.hoisted(() => ({
+  notifySuccessMock: vi.fn(),
+}));
+
+vi.mock("@/lib/notify", () => ({
+  notifySuccess: notifySuccessMock,
+  notifyError: vi.fn(),
 }));
 
 vi.mock("@/hooks/use-mobile", () => ({
@@ -36,6 +43,9 @@ vi.mock("@/trpc/client", () => ({
           }),
         }),
       },
+      getMine: {
+        infiniteQueryFilter: () => ({ queryKey: [["videos", "getMine"]] }),
+      },
     },
   }),
 }));
@@ -52,6 +62,7 @@ function renderDialog() {
 describe("VideoUploadDialog", () => {
   afterEach(() => {
     cleanup();
+    notifySuccessMock.mockClear();
   });
 
   it("ボタンからダイアログが開きアップローダーが表示される", () => {
@@ -62,18 +73,29 @@ describe("VideoUploadDialog", () => {
     expect(dialog.getByText("video-uploader-stub")).toBeDefined();
   });
 
-  it("アップロード完了で完了メッセージに切り替わる", async () => {
+  it("アップロード完了でダイアログが閉じる", async () => {
     renderDialog();
     fireEvent.click(screen.getByRole("button", { name: "Upload" }));
 
-    const dialog = within(screen.getByRole("dialog"));
-    fireEvent.click(dialog.getByText("video-uploader-stub"));
+    fireEvent.click(
+      within(screen.getByRole("dialog")).getByText("video-uploader-stub"),
+    );
 
-    expect(
-      await dialog.findByText(
-        "Upload complete. Your video will be available after processing finishes.",
-      ),
-    ).toBeDefined();
-    expect(dialog.queryByText("video-uploader-stub")).toBeNull();
+    await waitFor(() => {
+      expect(screen.queryByRole("dialog")).toBeNull();
+    });
+  });
+
+  it("アップロード完了で成功を通知する", async () => {
+    renderDialog();
+    fireEvent.click(screen.getByRole("button", { name: "Upload" }));
+
+    fireEvent.click(
+      within(screen.getByRole("dialog")).getByText("video-uploader-stub"),
+    );
+
+    await waitFor(() => {
+      expect(notifySuccessMock).toHaveBeenCalledWith(UPLOAD_SUCCESS_MESSAGE);
+    });
   });
 });
