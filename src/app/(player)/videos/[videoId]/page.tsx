@@ -1,8 +1,9 @@
 import { TRPCError } from "@trpc/server";
 import { notFound } from "next/navigation";
 import { z } from "zod";
+import { UserAvatar } from "@/components/user-avatar";
 import { VideoPlayer } from "@/components/videos/video-player";
-import { formatRelativeTime } from "@/lib/format";
+import { formatRelativeTime, formatUserName } from "@/lib/format";
 import { caller } from "@/trpc/server";
 
 export const dynamic = "force-dynamic";
@@ -43,6 +44,10 @@ export default async function VideoPage({ params }: VideoPageProps) {
         <p className="mt-1 text-sm text-muted-foreground">
           {formatRelativeTime(video.createdAt)}
         </p>
+        <div className="mt-4 flex items-center gap-3">
+          <UserAvatar user={video.user} size="lg" />
+          <p className="text-sm font-medium">{formatUserName(video.user)}</p>
+        </div>
         {video.description && (
           <p className="mt-6 whitespace-pre-wrap text-sm">
             {video.description}
