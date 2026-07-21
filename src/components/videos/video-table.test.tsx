@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import {
   afterEach,
   beforeAll,
@@ -48,6 +48,11 @@ vi.mock("@tanstack/react-query", async (importOriginal) => ({
 
 vi.mock("./video-upload-dialog", () => ({
   VideoUploadDialog: () => <button type="button">Upload</button>,
+}));
+
+vi.mock("./video-edit-dialog", () => ({
+  VideoEditDialog: ({ video }: { video: { title: string } | null }) =>
+    video ? <div>editing:{video.title}</div> : null,
 }));
 
 vi.mock("@/trpc/client", () => ({
@@ -112,6 +117,15 @@ describe("VideoTable", () => {
     expect(
       screen.getByText("You have not uploaded any videos yet."),
     ).toBeDefined();
+  });
+
+  it("行をクリックすると編集ダイアログが開く", () => {
+    mockVideos([baseVideo]);
+    render(<VideoTable />);
+
+    expect(screen.queryByText("editing:Test Video")).toBeNull();
+    fireEvent.click(screen.getByText("Test Video"));
+    expect(screen.getByText("editing:Test Video")).toBeDefined();
   });
 
   it("動画がない場合もアップロードボタンを表示する", () => {

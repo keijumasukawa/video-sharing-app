@@ -4,7 +4,9 @@ import { z } from "zod";
 import {
   DEFAULT_LIMIT,
   DEFAULT_VIDEO_TITLE,
+  DESCRIPTION_MAX_LENGTH,
   MAX_LIMIT,
+  TITLE_MAX_LENGTH,
 } from "@/constants/videos";
 import { db } from "@/db";
 import { videos } from "@/db/schema";
@@ -85,6 +87,31 @@ export const videosRouter = createTRPCRouter({
 
     return { videoId: video.id, uploadUrl: upload.url };
   }),
+  update: protectedProcedure
+    .input(
+      z.object({
+        id: z.uuid(),
+        title: z.string().trim().min(1).max(TITLE_MAX_LENGTH),
+        description: z.string().trim().max(DESCRIPTION_MAX_LENGTH).nullish(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const [video] = await db
+        .update(videos)
+        .set({
+          title: input.title,
+          description: input.description || null,
+          updatedAt: new Date(),
+        })
+        .where(and(eq(videos.id, input.id), eq(videos.userId, ctx.user.id)))
+        .returning();
+
+      if (!video) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+
+      return video;
+    }),
   getOne: baseProcedure
     .input(z.object({ id: z.uuid() }))
     .query(async ({ input }) => {

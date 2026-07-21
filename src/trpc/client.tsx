@@ -10,7 +10,6 @@ import { notifyError, notifySuccess } from "@/lib/notify";
 import { makeQueryClient } from "./query-client";
 import type { AppRouter } from "./routers/_app";
 
-// ミューテーションごとに通知文言を宣言できるようにする
 declare module "@tanstack/react-query" {
   interface Register {
     mutationMeta: {
@@ -24,8 +23,6 @@ export const { TRPCProvider, useTRPC } = createTRPCContext<AppRouter>();
 
 let browserQueryClient: QueryClient;
 
-// 各ミューテーションで onError を書き忘れても失敗が必ず通知されるよう、
-// グローバルコールバックで一元的に扱う
 function makeNotifyingMutationCache() {
   return new MutationCache({
     onSuccess: (_data, _variables, _onMutateResult, mutation) => {
