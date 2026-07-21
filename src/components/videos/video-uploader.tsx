@@ -8,6 +8,8 @@ import MuxUploader, {
 } from "@mux/mux-uploader-react";
 import { UploadIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { UPLOAD_ERROR_MESSAGE } from "@/constants/messages";
+import { notifyError } from "@/lib/notify";
 
 type UploaderEndpoint = React.ComponentProps<typeof MuxUploader>["endpoint"];
 
@@ -23,6 +25,7 @@ export function VideoUploader({ endpoint, onSuccess }: VideoUploaderProps) {
     <div>
       <MuxUploader
         onSuccess={onSuccess}
+        onError={() => notifyError(UPLOAD_ERROR_MESSAGE)}
         endpoint={endpoint}
         id={UPLOADER_ID}
         className="group/uploader hidden"

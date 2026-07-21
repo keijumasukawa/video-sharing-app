@@ -14,7 +14,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { SIGN_OUT_ERROR_MESSAGE } from "@/constants/messages";
 import type { AuthUser } from "@/lib/auth";
+import { notifyError } from "@/lib/notify";
 import { createClient } from "@/lib/supabase/client";
 
 interface UserActionsProps {
@@ -32,8 +34,13 @@ export function UserActions({ user }: UserActionsProps) {
 
   const handleSignOut = async () => {
     const supabase = createClient();
-    await supabase.auth.signOut();
-    // サーバー側の認証状態(ヘッダー表示等)を再取得する
+    const { error } = await supabase.auth.signOut();
+
+    if (error) {
+      notifyError(SIGN_OUT_ERROR_MESSAGE);
+      return;
+    }
+
     router.refresh();
   };
 
@@ -56,7 +63,6 @@ export function UserActions({ user }: UserActionsProps) {
       <DropdownMenuContent align="end" className="min-w-56">
         {user.email && (
           <>
-            {/* Base UI の仕様上、DropdownMenuLabel は DropdownMenuGroup 内に置く必要がある */}
             <DropdownMenuGroup>
               <DropdownMenuLabel className="max-w-72 truncate font-normal text-muted-foreground">
                 {user.email}

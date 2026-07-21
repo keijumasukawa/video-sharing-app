@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { APP_NAME } from "@/constants/app";
 import { TRPCReactProvider } from "@/trpc/client";
@@ -42,6 +43,7 @@ export default function RootLayout({
           <TRPCReactProvider>
             <TooltipProvider>{children}</TooltipProvider>
           </TRPCReactProvider>
+          <Toaster richColors />
         </ThemeProvider>
       </body>
     </html>
