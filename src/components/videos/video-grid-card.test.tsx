@@ -14,6 +14,11 @@ const baseVideo = {
   duration: 125,
   createdAt: new Date("2026-07-19T11:00:00Z"),
   updatedAt: new Date("2026-07-19T11:00:00Z"),
+  user: {
+    firstName: "Taro",
+    lastName: "Yamada",
+    avatarUrl: null,
+  },
 };
 
 describe("VideoGridCard", () => {
@@ -67,6 +72,16 @@ describe("VideoGridCard", () => {
     );
     const preview = container.querySelector('img[src*="animated.webp"]');
     expect(preview).toBeNull();
+  });
+
+  it("投稿者の氏名を表示する", () => {
+    render(<VideoGridCard video={baseVideo} />);
+    expect(screen.getByText("Taro Yamada")).toBeDefined();
+  });
+
+  it("アバター画像がない場合はイニシャルを表示する", () => {
+    render(<VideoGridCard video={baseVideo} />);
+    expect(screen.getByText("T")).toBeDefined();
   });
 
   it("動画の長さバッジを表示する", () => {

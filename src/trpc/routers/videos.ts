@@ -1,5 +1,13 @@
 import { TRPCError } from "@trpc/server";
-import { and, desc, eq, inArray, lt, or, type SQL } from "drizzle-orm";
+import {
+  and,
+  desc,
+  eq,
+  getTableColumns,
+  inArray,
+  lt,
+  or,
+} from "drizzle-orm";
 import { z } from "zod";
 import {
   DEFAULT_LIMIT,
@@ -9,7 +17,7 @@ import {
   TITLE_MAX_LENGTH,
 } from "@/constants/videos";
 import { db } from "@/db";
-import { videos } from "@/db/schema";
+import { profiles, videos } from "@/db/schema";
 import { getMux } from "@/lib/mux";
 import { baseProcedure, createTRPCRouter, protectedProcedure } from "../init";
 
@@ -38,17 +46,10 @@ function afterCursor(cursor: Pagination["cursor"]) {
   );
 }
 
-async function paginateVideos(
-  { cursor, limit }: Pagination,
-  filter: SQL | undefined,
+function toPage<T extends { createdAt: Date; id: string }>(
+  items: T[],
+  limit: number,
 ) {
-  const items = await db
-    .select()
-    .from(videos)
-    .where(and(filter, afterCursor(cursor)))
-    .orderBy(desc(videos.createdAt), desc(videos.id))
-    .limit(limit + 1);
-
   const hasMore = items.length > limit;
   if (hasMore) {
     items.pop();
@@ -62,6 +63,15 @@ async function paginateVideos(
 
   return { items, nextCursor };
 }
+
+const videoWithUser = {
+  ...getTableColumns(videos),
+  user: {
+    firstName: profiles.firstName,
+    lastName: profiles.lastName,
+    avatarUrl: profiles.avatarUrl,
+  },
+};
 
 export const videosRouter = createTRPCRouter({
   create: protectedProcedure.mutation(async ({ ctx }) => {
@@ -143,8 +153,9 @@ export const videosRouter = createTRPCRouter({
     .input(z.object({ id: z.uuid() }))
     .query(async ({ input }) => {
       const [video] = await db
-        .select()
+        .select(videoWithUser)
         .from(videos)
+        .innerJoin(profiles, eq(videos.userId, profiles.id))
         .where(and(eq(videos.id, input.id), eq(videos.status, "ready")))
         .limit(1);
 
@@ -156,12 +167,29 @@ export const videosRouter = createTRPCRouter({
     }),
   getMine: protectedProcedure
     .input(paginationSchema)
-    .query(async ({ ctx, input }) =>
-      paginateVideos(input, eq(videos.userId, ctx.user.id)),
-    ),
+    .query(async ({ ctx, input }) => {
+      const items = await db
+        .select()
+        .from(videos)
+        .where(
+          and(eq(videos.userId, ctx.user.id), afterCursor(input.cursor)),
+        )
+        .orderBy(desc(videos.createdAt), desc(videos.id))
+        .limit(input.limit + 1);
+
+      return toPage(items, input.limit);
+    }),
   list: baseProcedure
     .input(paginationSchema)
-    .query(async ({ input }) =>
-      paginateVideos(input, eq(videos.status, "ready")),
-    ),
+    .query(async ({ input }) => {
+      const items = await db
+        .select(videoWithUser)
+        .from(videos)
+        .innerJoin(profiles, eq(videos.userId, profiles.id))
+        .where(and(eq(videos.status, "ready"), afterCursor(input.cursor)))
+        .orderBy(desc(videos.createdAt), desc(videos.id))
+        .limit(input.limit + 1);
+
+      return toPage(items, input.limit);
+    }),
 });

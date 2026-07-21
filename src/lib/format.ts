@@ -8,6 +8,13 @@ export function formatDate(date: Date): string {
   return format(date, "d MMM yyyy");
 }
 
+export function formatUserName(user: {
+  firstName: string;
+  lastName: string;
+}): string {
+  return `${user.firstName} ${user.lastName}`.trim();
+}
+
 export function formatDuration(seconds: number): string {
   const total = Math.floor(seconds);
   const hours = Math.floor(total / 3600);

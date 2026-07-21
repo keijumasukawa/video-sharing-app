@@ -1,5 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { formatDate, formatDuration, formatRelativeTime } from "./format";
+import {
+  formatDate,
+  formatDuration,
+  formatRelativeTime,
+  formatUserName,
+} from "./format";
 
 describe("formatRelativeTime", () => {
   beforeEach(() => {
@@ -26,6 +31,21 @@ describe("formatDate", () => {
   it("日付を「d MMM yyyy」形式で返す", () => {
     expect(formatDate(new Date("2026-07-19T11:00:00Z"))).toBe("19 Jul 2026");
     expect(formatDate(new Date("2026-01-05T00:00:00Z"))).toBe("5 Jan 2026");
+  });
+});
+
+describe("formatUserName", () => {
+  it("氏名を半角スペースで結合して返す", () => {
+    expect(formatUserName({ firstName: "Taro", lastName: "Yamada" })).toBe(
+      "Taro Yamada",
+    );
+  });
+
+  it("片方が空の場合は余分なスペースを除いて返す", () => {
+    expect(formatUserName({ firstName: "Taro", lastName: "" })).toBe("Taro");
+    expect(formatUserName({ firstName: "", lastName: "Yamada" })).toBe(
+      "Yamada",
+    );
   });
 });
 
