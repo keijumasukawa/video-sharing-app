@@ -15,6 +15,10 @@ export function formatUserName(user: {
   return `${user.firstName} ${user.lastName}`.trim();
 }
 
+export function stripFileExtension(fileName: string): string {
+  return fileName.replace(/\.[^.]+$/, "");
+}
+
 export function formatDuration(seconds: number): string {
   const total = Math.floor(seconds);
   const hours = Math.floor(total / 3600);

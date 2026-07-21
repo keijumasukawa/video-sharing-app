@@ -11,7 +11,6 @@ import {
 import { z } from "zod";
 import {
   DEFAULT_LIMIT,
-  DEFAULT_VIDEO_TITLE,
   DESCRIPTION_MAX_LENGTH,
   MAX_LIMIT,
   TITLE_MAX_LENGTH,
@@ -74,29 +73,37 @@ const videoWithUser = {
 };
 
 export const videosRouter = createTRPCRouter({
-  create: protectedProcedure.mutation(async ({ ctx }) => {
-    const upload = await getMux().video.uploads.create({
-      cors_origin: "*",
-      new_asset_settings: {
-        playback_policies: ["public"],
-      },
-    });
+  create: protectedProcedure
+    .input(
+      z.object({
+        title: z.string().trim().min(1).max(TITLE_MAX_LENGTH),
+        description: z.string().trim().max(DESCRIPTION_MAX_LENGTH).nullish(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const upload = await getMux().video.uploads.create({
+        cors_origin: "*",
+        new_asset_settings: {
+          playback_policies: ["public"],
+        },
+      });
 
-    if (!upload.url) {
-      throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
-    }
+      if (!upload.url) {
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      }
 
-    const [video] = await db
-      .insert(videos)
-      .values({
-        userId: ctx.user.id,
-        title: DEFAULT_VIDEO_TITLE,
-        muxUploadId: upload.id,
-      })
-      .returning();
+      const [video] = await db
+        .insert(videos)
+        .values({
+          userId: ctx.user.id,
+          title: input.title,
+          description: input.description || null,
+          muxUploadId: upload.id,
+        })
+        .returning();
 
-    return { videoId: video.id, uploadUrl: upload.url };
-  }),
+      return { videoId: video.id, uploadUrl: upload.url };
+    }),
   update: protectedProcedure
     .input(
       z.object({
