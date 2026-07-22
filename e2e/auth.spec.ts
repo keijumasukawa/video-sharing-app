@@ -1,5 +1,7 @@
 import { test, expect } from "@playwright/test";
 
+test.use({ storageState: { cookies: [], origins: [] } });
+
 test("未認証で動画管理ページにアクセスするとサインイン案内が表示される", async ({
   page,
 }) => {
