@@ -8,7 +8,12 @@ export default function VideoNotFound() {
       <p className="text-sm text-muted-foreground">
         This video does not exist or is no longer available.
       </p>
-      <Button render={<Link href="/videos" />} variant="secondary" size="sm">
+      <Button
+        render={<Link href="/videos" />}
+        nativeButton={false}
+        variant="secondary"
+        size="sm"
+      >
         Back to videos
       </Button>
     </div>
