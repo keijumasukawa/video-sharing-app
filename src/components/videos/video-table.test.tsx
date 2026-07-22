@@ -1,23 +1,7 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import {
-  afterEach,
-  beforeAll,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi,
-} from "vitest";
+import { cleanup, render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { VideoTable } from "./video-table";
-
-beforeAll(() => {
-  class IntersectionObserverStub {
-    observe() {}
-    unobserve() {}
-    disconnect() {}
-  }
-  vi.stubGlobal("IntersectionObserver", IntersectionObserverStub);
-});
 
 type VideoRow = Omit<typeof baseVideo, "status"> & {
   status: "waiting" | "preparing" | "ready" | "errored";
@@ -91,29 +75,29 @@ describe("VideoTable", () => {
     mockVideos([baseVideo]);
     render(<VideoTable />);
 
-    expect(screen.getByText("Test Video")).toBeDefined();
-    expect(screen.getByText("19 Jul 2026")).toBeDefined();
+    expect(screen.getByText("Test Video")).toBeInTheDocument();
+    expect(screen.getByText("19 Jul 2026")).toBeInTheDocument();
   });
 
   it("エンコード完了の動画を Published と表示する", () => {
     mockVideos([baseVideo]);
     render(<VideoTable />);
 
-    expect(screen.getByText("Published")).toBeDefined();
+    expect(screen.getByText("Published")).toBeInTheDocument();
   });
 
   it("エンコード中の動画を Processing と表示する", () => {
     mockVideos([{ ...baseVideo, status: "waiting" as const }]);
     render(<VideoTable />);
 
-    expect(screen.getByText("Processing")).toBeDefined();
+    expect(screen.getByText("Processing")).toBeInTheDocument();
   });
 
   it("エンコードに失敗した動画を Error と表示する", () => {
     mockVideos([{ ...baseVideo, status: "errored" as const }]);
     render(<VideoTable />);
 
-    expect(screen.getByText("Error")).toBeDefined();
+    expect(screen.getByText("Error")).toBeInTheDocument();
   });
 
   it("動画がない場合は空状態を表示する", () => {
@@ -122,66 +106,71 @@ describe("VideoTable", () => {
 
     expect(
       screen.getByText("You have not uploaded any videos yet."),
-    ).toBeDefined();
+    ).toBeInTheDocument();
   });
 
-  it("行をクリックすると編集ダイアログが開く", () => {
+  it("行をクリックすると編集ダイアログが開く", async () => {
+    const user = userEvent.setup();
     mockVideos([baseVideo]);
     render(<VideoTable />);
 
-    expect(screen.queryByText("editing:Test Video")).toBeNull();
-    fireEvent.click(screen.getByText("Test Video"));
-    expect(screen.getByText("editing:Test Video")).toBeDefined();
+    expect(screen.queryByText("editing:Test Video")).not.toBeInTheDocument();
+    await user.click(screen.getByText("Test Video"));
+    expect(screen.getByText("editing:Test Video")).toBeInTheDocument();
   });
 
-  it("行のチェックボックスを選択すると削除ボタンが表示される", () => {
+  it("行のチェックボックスを選択すると削除ボタンが表示される", async () => {
+    const user = userEvent.setup();
     mockVideos([baseVideo]);
     render(<VideoTable />);
 
-    expect(screen.queryByText("Delete (1)")).toBeNull();
-    fireEvent.click(screen.getByRole("checkbox", { name: "Select video" }));
+    expect(screen.queryByText("Delete (1)")).not.toBeInTheDocument();
+    await user.click(screen.getByRole("checkbox", { name: "Select video" }));
 
-    expect(screen.getByText("1 selected")).toBeDefined();
-    expect(screen.getByText("Delete (1)")).toBeDefined();
+    expect(screen.getByText("1 selected")).toBeInTheDocument();
+    expect(screen.getByText("Delete (1)")).toBeInTheDocument();
   });
 
-  it("ヘッダーのチェックボックスで全選択できる", () => {
+  it("ヘッダーのチェックボックスで全選択できる", async () => {
+    const user = userEvent.setup();
     mockVideos([
       baseVideo,
       { ...baseVideo, id: "33333333-3333-3333-3333-333333333333" },
     ]);
     render(<VideoTable />);
 
-    fireEvent.click(screen.getByRole("checkbox", { name: "Select all" }));
+    await user.click(screen.getByRole("checkbox", { name: "Select all" }));
 
-    expect(screen.getByText("2 selected")).toBeDefined();
-    expect(screen.getByText("Delete (2)")).toBeDefined();
+    expect(screen.getByText("2 selected")).toBeInTheDocument();
+    expect(screen.getByText("Delete (2)")).toBeInTheDocument();
   });
 
-  it("全選択済みのヘッダーのチェックボックスで全解除できる", () => {
+  it("全選択済みのヘッダーのチェックボックスで全解除できる", async () => {
+    const user = userEvent.setup();
     mockVideos([baseVideo]);
     render(<VideoTable />);
 
     const selectAll = screen.getByRole("checkbox", { name: "Select all" });
-    fireEvent.click(selectAll);
-    fireEvent.click(selectAll);
+    await user.click(selectAll);
+    await user.click(selectAll);
 
-    expect(screen.queryByText("1 selected")).toBeNull();
+    expect(screen.queryByText("1 selected")).not.toBeInTheDocument();
   });
 
-  it("チェックボックスの選択では編集ダイアログを開かない", () => {
+  it("チェックボックスの選択では編集ダイアログを開かない", async () => {
+    const user = userEvent.setup();
     mockVideos([baseVideo]);
     render(<VideoTable />);
 
-    fireEvent.click(screen.getByRole("checkbox", { name: "Select video" }));
+    await user.click(screen.getByRole("checkbox", { name: "Select video" }));
 
-    expect(screen.queryByText("editing:Test Video")).toBeNull();
+    expect(screen.queryByText("editing:Test Video")).not.toBeInTheDocument();
   });
 
   it("動画がない場合もアップロードボタンを表示する", () => {
     mockVideos([]);
     render(<VideoTable />);
 
-    expect(screen.getByRole("button", { name: "Upload" })).toBeDefined();
+    expect(screen.getByRole("button", { name: "Upload" })).toBeInTheDocument();
   });
 });

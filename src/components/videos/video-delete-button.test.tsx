@@ -1,12 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import {
-  cleanup,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-  within,
-} from "@testing-library/react";
+import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { VideoDeleteButton } from "./video-delete-button";
 
@@ -58,19 +52,21 @@ describe("VideoDeleteButton", () => {
     notifySuccessMock.mockClear();
   });
 
-  it("削除ボタンを押すと確認ダイアログが表示される", () => {
+  it("削除ボタンを押すと確認ダイアログが表示される", async () => {
+    const user = userEvent.setup();
     renderButton();
 
-    fireEvent.click(screen.getByRole("button", { name: "Delete" }));
+    await user.click(screen.getByRole("button", { name: "Delete" }));
 
-    expect(screen.getByText("Delete 2 videos?")).toBeDefined();
+    expect(screen.getByText("Delete 2 videos?")).toBeInTheDocument();
   });
 
   it("確認ダイアログで確定すると選択した動画の削除を実行する", async () => {
+    const user = userEvent.setup();
     renderButton();
 
-    fireEvent.click(screen.getByRole("button", { name: "Delete" }));
-    fireEvent.click(
+    await user.click(screen.getByRole("button", { name: "Delete" }));
+    await user.click(
       within(screen.getByRole("alertdialog")).getByRole("button", {
         name: "Delete",
       }),
@@ -82,10 +78,11 @@ describe("VideoDeleteButton", () => {
   });
 
   it("削除に成功すると件数を通知し選択を解除する", async () => {
+    const user = userEvent.setup();
     const { onDeleted } = renderButton();
 
-    fireEvent.click(screen.getByRole("button", { name: "Delete" }));
-    fireEvent.click(
+    await user.click(screen.getByRole("button", { name: "Delete" }));
+    await user.click(
       within(screen.getByRole("alertdialog")).getByRole("button", {
         name: "Delete",
       }),
@@ -98,13 +95,14 @@ describe("VideoDeleteButton", () => {
   });
 
   it("キャンセルすると削除を実行しない", async () => {
+    const user = userEvent.setup();
     renderButton();
 
-    fireEvent.click(screen.getByRole("button", { name: "Delete" }));
-    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+    await user.click(screen.getByRole("button", { name: "Delete" }));
+    await user.click(screen.getByRole("button", { name: "Cancel" }));
 
     await waitFor(() => {
-      expect(screen.queryByRole("alertdialog")).toBeNull();
+      expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
     });
     expect(mutationFnMock).not.toHaveBeenCalled();
   });
