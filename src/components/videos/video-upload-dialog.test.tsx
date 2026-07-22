@@ -2,12 +2,12 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   act,
   cleanup,
-  fireEvent,
   render,
   screen,
   waitFor,
   within,
 } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   UPLOAD_ERROR_MESSAGE,
@@ -76,21 +76,25 @@ function renderDialog() {
   );
 }
 
-function openDialog() {
-  fireEvent.click(screen.getByRole("button", { name: "Upload" }));
+type User = ReturnType<typeof userEvent.setup>;
+
+async function openDialog(user: User) {
+  await user.click(screen.getByRole("button", { name: "Upload" }));
   return within(screen.getByRole("dialog"));
 }
 
-function selectFile(dialog: ReturnType<typeof within>, fileName: string) {
+async function selectFile(
+  user: User,
+  dialog: ReturnType<typeof within>,
+  fileName: string,
+) {
   const file = new File(["video"], fileName, { type: "video/mp4" });
-  fireEvent.change(dialog.getByLabelText("Select file"), {
-    target: { files: [file] },
-  });
+  await user.upload(dialog.getByLabelText("Select file"), file);
   return file;
 }
 
-function save(dialog: ReturnType<typeof within>) {
-  fireEvent.click(dialog.getByRole("button", { name: "Save" }));
+async function save(user: User, dialog: ReturnType<typeof within>) {
+  await user.click(dialog.getByRole("button", { name: "Save" }));
 }
 
 describe("VideoUploadDialog", () => {
@@ -99,45 +103,44 @@ describe("VideoUploadDialog", () => {
     vi.clearAllMocks();
   });
 
-  it("ボタンからダイアログが開きフォームが表示される", () => {
+  it("ボタンからダイアログが開きフォームが表示される", async () => {
+    const user = userEvent.setup();
     renderDialog();
-    const dialog = openDialog();
+    const dialog = await openDialog(user);
 
-    expect(dialog.getByLabelText("Select file")).toBeDefined();
-    expect(dialog.getByText("No file selected")).toBeDefined();
-    expect(dialog.getByLabelText("Title")).toBeDefined();
-    expect(dialog.getByLabelText("Description")).toBeDefined();
-    expect(dialog.getByRole("button", { name: "Save" })).toBeDefined();
+    expect(dialog.getByLabelText("Select file")).toBeInTheDocument();
+    expect(dialog.getByText("No file selected")).toBeInTheDocument();
+    expect(dialog.getByLabelText("Title")).toBeInTheDocument();
+    expect(dialog.getByLabelText("Description")).toBeInTheDocument();
+    expect(dialog.getByRole("button", { name: "Save" })).toBeInTheDocument();
   });
 
   it("ファイル未選択で保存するとエラーが表示され登録されない", async () => {
+    const user = userEvent.setup();
     renderDialog();
-    const dialog = openDialog();
-    save(dialog);
+    const dialog = await openDialog(user);
+    await save(user, dialog);
 
     expect(
       await dialog.findByText("Please select a video file."),
-    ).toBeDefined();
+    ).toBeInTheDocument();
     expect(mutationFnMock).not.toHaveBeenCalled();
   });
 
   it("保存するとタイトル・説明で登録しアップロードを開始する", async () => {
+    const user = userEvent.setup();
     stubUpload();
     mutationFnMock.mockResolvedValue({
       videoId: "11111111-1111-1111-1111-111111111111",
       uploadUrl: "https://example.com/upload",
     });
     renderDialog();
-    const dialog = openDialog();
-    const file = selectFile(dialog, "my-video.mp4");
-    expect(dialog.getByText("my-video.mp4")).toBeDefined();
-    fireEvent.change(dialog.getByLabelText("Title"), {
-      target: { value: "My title" },
-    });
-    fireEvent.change(dialog.getByLabelText("Description"), {
-      target: { value: "My description" },
-    });
-    save(dialog);
+    const dialog = await openDialog(user);
+    const file = await selectFile(user, dialog, "my-video.mp4");
+    expect(dialog.getByText("my-video.mp4")).toBeInTheDocument();
+    await user.type(dialog.getByLabelText("Title"), "My title");
+    await user.type(dialog.getByLabelText("Description"), "My description");
+    await save(user, dialog);
 
     await waitFor(() => {
       expect(mutationFnMock.mock.calls[0]?.[0]).toEqual({
@@ -152,15 +155,16 @@ describe("VideoUploadDialog", () => {
   });
 
   it("タイトル未入力の場合は拡張子を除いたファイル名で登録する", async () => {
+    const user = userEvent.setup();
     stubUpload();
     mutationFnMock.mockResolvedValue({
       videoId: "11111111-1111-1111-1111-111111111111",
       uploadUrl: "https://example.com/upload",
     });
     renderDialog();
-    const dialog = openDialog();
-    selectFile(dialog, "my-video.mp4");
-    save(dialog);
+    const dialog = await openDialog(user);
+    await selectFile(user, dialog, "my-video.mp4");
+    await save(user, dialog);
 
     await waitFor(() => {
       expect(mutationFnMock.mock.calls[0]?.[0]).toEqual({
@@ -171,15 +175,16 @@ describe("VideoUploadDialog", () => {
   });
 
   it("アップロード中は進捗が表示される", async () => {
+    const user = userEvent.setup();
     const handlers = stubUpload();
     mutationFnMock.mockResolvedValue({
       videoId: "11111111-1111-1111-1111-111111111111",
       uploadUrl: "https://example.com/upload",
     });
     renderDialog();
-    const dialog = openDialog();
-    selectFile(dialog, "my-video.mp4");
-    save(dialog);
+    const dialog = await openDialog(user);
+    await selectFile(user, dialog, "my-video.mp4");
+    await save(user, dialog);
 
     await waitFor(() => {
       expect(createUploadMock).toHaveBeenCalled();
@@ -188,19 +193,20 @@ describe("VideoUploadDialog", () => {
       handlers.progress?.({ detail: 42 });
     });
 
-    expect(dialog.getByText("42%")).toBeDefined();
+    expect(dialog.getByText("42%")).toBeInTheDocument();
   });
 
   it("アップロード成功で通知しダイアログが閉じる", async () => {
+    const user = userEvent.setup();
     const handlers = stubUpload();
     mutationFnMock.mockResolvedValue({
       videoId: "11111111-1111-1111-1111-111111111111",
       uploadUrl: "https://example.com/upload",
     });
     renderDialog();
-    const dialog = openDialog();
-    selectFile(dialog, "my-video.mp4");
-    save(dialog);
+    const dialog = await openDialog(user);
+    await selectFile(user, dialog, "my-video.mp4");
+    await save(user, dialog);
 
     await waitFor(() => {
       expect(createUploadMock).toHaveBeenCalled();
@@ -211,20 +217,21 @@ describe("VideoUploadDialog", () => {
 
     expect(notifySuccessMock).toHaveBeenCalledWith(UPLOAD_SUCCESS_MESSAGE);
     await waitFor(() => {
-      expect(screen.queryByRole("dialog")).toBeNull();
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     });
   });
 
   it("アップロード失敗でエラーを通知する", async () => {
+    const user = userEvent.setup();
     const handlers = stubUpload();
     mutationFnMock.mockResolvedValue({
       videoId: "11111111-1111-1111-1111-111111111111",
       uploadUrl: "https://example.com/upload",
     });
     renderDialog();
-    const dialog = openDialog();
-    selectFile(dialog, "my-video.mp4");
-    save(dialog);
+    const dialog = await openDialog(user);
+    await selectFile(user, dialog, "my-video.mp4");
+    await save(user, dialog);
 
     await waitFor(() => {
       expect(createUploadMock).toHaveBeenCalled();

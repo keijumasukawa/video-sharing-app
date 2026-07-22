@@ -1,15 +1,7 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { cleanup, render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { InfiniteScroll } from "./infinite-scroll";
-
-beforeAll(() => {
-  class IntersectionObserverStub {
-    observe() {}
-    unobserve() {}
-    disconnect() {}
-  }
-  vi.stubGlobal("IntersectionObserver", IntersectionObserverStub);
-});
 
 describe("InfiniteScroll", () => {
   afterEach(() => {
@@ -24,10 +16,13 @@ describe("InfiniteScroll", () => {
         fetchNextPage={vi.fn()}
       />,
     );
-    expect(screen.getByRole("button", { name: "Load more" })).toBeDefined();
+    expect(
+      screen.getByRole("button", { name: "Load more" }),
+    ).toBeInTheDocument();
   });
 
-  it("Load more ボタンのクリックで fetchNextPage が呼ばれる", () => {
+  it("Load more ボタンのクリックで fetchNextPage が呼ばれる", async () => {
+    const user = userEvent.setup();
     const fetchNextPage = vi.fn();
     render(
       <InfiniteScroll
@@ -36,7 +31,7 @@ describe("InfiniteScroll", () => {
         fetchNextPage={fetchNextPage}
       />,
     );
-    fireEvent.click(screen.getByRole("button", { name: "Load more" }));
+    await user.click(screen.getByRole("button", { name: "Load more" }));
     expect(fetchNextPage).toHaveBeenCalledTimes(1);
   });
 
@@ -48,8 +43,7 @@ describe("InfiniteScroll", () => {
         fetchNextPage={vi.fn()}
       />,
     );
-    const button = screen.getByRole("button", { name: "Loading..." });
-    expect(button.hasAttribute("disabled")).toBe(true);
+    expect(screen.getByRole("button", { name: "Loading..." })).toBeDisabled();
   });
 
   it("全件到達時は終端メッセージを表示する", () => {
@@ -62,7 +56,7 @@ describe("InfiniteScroll", () => {
     );
     expect(
       screen.getByText("You have reached the end of the list"),
-    ).toBeDefined();
-    expect(screen.queryByRole("button")).toBeNull();
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("button")).not.toBeInTheDocument();
   });
 });

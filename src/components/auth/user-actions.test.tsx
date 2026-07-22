@@ -1,4 +1,5 @@
-import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { cleanup, render, screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { UserActions } from "./user-actions";
 
@@ -21,8 +22,12 @@ describe("UserActions", () => {
 
   it("未認証時は Sign in / Sign up ボタンを表示する", () => {
     render(<UserActions user={null} />);
-    expect(screen.getByRole("button", { name: "Sign in" })).toBeDefined();
-    expect(screen.getByRole("button", { name: "Sign up" })).toBeDefined();
+    expect(
+      screen.getByRole("button", { name: "Sign in" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Sign up" }),
+    ).toBeInTheDocument();
   });
 
   it("認証時はメールアドレスの頭文字のアバターメニューを表示する", () => {
@@ -35,10 +40,11 @@ describe("UserActions", () => {
       />,
     );
     const trigger = screen.getByRole("button", { name: "Open user menu" });
-    expect(within(trigger).getByText("Y")).toBeDefined();
+    expect(within(trigger).getByText("Y")).toBeInTheDocument();
   });
 
   it("アバターメニューを開くとメールアドレスとログアウトが表示される", async () => {
+    const user = userEvent.setup();
     render(
       <UserActions
         user={{
@@ -47,12 +53,12 @@ describe("UserActions", () => {
         }}
       />,
     );
-    fireEvent.click(screen.getByRole("button", { name: "Open user menu" }));
+    await user.click(screen.getByRole("button", { name: "Open user menu" }));
 
     const menu = await screen.findByRole("menu");
-    expect(within(menu).getByText("you@example.com")).toBeDefined();
+    expect(within(menu).getByText("you@example.com")).toBeInTheDocument();
     expect(
       within(menu).getByRole("menuitem", { name: "Log out" }),
-    ).toBeDefined();
+    ).toBeInTheDocument();
   });
 });

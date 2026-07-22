@@ -1,11 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import {
-  cleanup,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from "@testing-library/react";
+import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { VideoEditDialog } from "./video-edit-dialog";
 
@@ -42,12 +37,6 @@ const video = {
   description: "Current description",
 };
 
-function fieldValue(label: string) {
-  return (
-    screen.getByLabelText(label) as HTMLInputElement | HTMLTextAreaElement
-  ).value;
-}
-
 function renderDialog(
   props: Partial<React.ComponentProps<typeof VideoEditDialog>> = {},
 ) {
@@ -67,40 +56,42 @@ describe("VideoEditDialog", () => {
 
   it("動画が未選択の場合は表示しない", () => {
     renderDialog({ video: null });
-    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
   it("現在のタイトルと説明を初期値として表示する", () => {
     renderDialog();
-    expect(fieldValue("Title")).toBe("Current Title");
-    expect(fieldValue("Description")).toBe("Current description");
+    expect(screen.getByLabelText("Title")).toHaveValue("Current Title");
+    expect(screen.getByLabelText("Description")).toHaveValue(
+      "Current description",
+    );
   });
 
   it("説明が未設定の場合は空欄で表示する", () => {
     renderDialog({ video: { ...video, description: null } });
-    expect(fieldValue("Description")).toBe("");
+    expect(screen.getByLabelText("Description")).toHaveValue("");
   });
 
   it("タイトルが空の場合は保存せずエラーを表示する", async () => {
+    const user = userEvent.setup();
     renderDialog();
 
-    fireEvent.change(screen.getByLabelText("Title"), { target: { value: "" } });
-    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    await user.clear(screen.getByLabelText("Title"));
+    await user.click(screen.getByRole("button", { name: "Save" }));
 
-    expect(await screen.findByText("Title is required.")).toBeDefined();
+    expect(await screen.findByText("Title is required.")).toBeInTheDocument();
     expect(mutationFnMock).not.toHaveBeenCalled();
   });
 
   it("入力内容を保存する", async () => {
+    const user = userEvent.setup();
     renderDialog();
 
-    fireEvent.change(screen.getByLabelText("Title"), {
-      target: { value: "New Title" },
-    });
-    fireEvent.change(screen.getByLabelText("Description"), {
-      target: { value: "New description" },
-    });
-    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    await user.clear(screen.getByLabelText("Title"));
+    await user.type(screen.getByLabelText("Title"), "New Title");
+    await user.clear(screen.getByLabelText("Description"));
+    await user.type(screen.getByLabelText("Description"), "New description");
+    await user.click(screen.getByRole("button", { name: "Save" }));
 
     await waitFor(() => {
       expect(mutationFnMock.mock.calls[0]?.[0]).toEqual({
@@ -112,10 +103,11 @@ describe("VideoEditDialog", () => {
   });
 
   it("保存に成功するとダイアログを閉じる", async () => {
+    const user = userEvent.setup();
     const onOpenChange = vi.fn();
     renderDialog({ onOpenChange });
 
-    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Save" }));
 
     await waitFor(() => {
       expect(onOpenChange).toHaveBeenCalledWith(false);

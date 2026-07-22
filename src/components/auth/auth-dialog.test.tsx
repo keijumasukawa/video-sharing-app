@@ -1,4 +1,5 @@
-import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { cleanup, render, screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { AuthDialog } from "./auth-dialog";
 
@@ -15,9 +16,11 @@ vi.mock("@/lib/supabase/client", () => ({
   }),
 }));
 
-function openDialog() {
+type User = ReturnType<typeof userEvent.setup>;
+
+async function openDialog(user: User) {
   render(<AuthDialog />);
-  fireEvent.click(screen.getByRole("button", { name: "Sign in" }));
+  await user.click(screen.getByRole("button", { name: "Sign in" }));
   return within(screen.getByRole("dialog"));
 }
 
@@ -26,59 +29,63 @@ describe("AuthDialog", () => {
     cleanup();
   });
 
-  it("トリガーからダイアログが開きデモアカウントが初期入力されている", () => {
-    const dialog = openDialog();
-    expect(
-      (dialog.getByLabelText("Email") as HTMLInputElement).value,
-    ).toBe("demo@example.com");
-    expect(
-      (dialog.getByLabelText("Password") as HTMLInputElement).value,
-    ).toBe("password");
+  it("トリガーからダイアログが開きデモアカウントが初期入力されている", async () => {
+    const user = userEvent.setup();
+    const dialog = await openDialog(user);
+    expect(dialog.getByLabelText("Email")).toHaveValue("demo@example.com");
+    expect(dialog.getByLabelText("Password")).toHaveValue("password");
   });
 
   it("未入力で送信するとバリデーションエラーが表示される", async () => {
-    const dialog = openDialog();
-    fireEvent.change(dialog.getByLabelText("Email"), {
-      target: { value: "" },
-    });
-    fireEvent.change(dialog.getByLabelText("Password"), {
-      target: { value: "" },
-    });
-    fireEvent.click(dialog.getByRole("button", { name: "Sign in" }));
+    const user = userEvent.setup();
+    const dialog = await openDialog(user);
+    await user.clear(dialog.getByLabelText("Email"));
+    await user.clear(dialog.getByLabelText("Password"));
+    await user.click(dialog.getByRole("button", { name: "Sign in" }));
     expect(
       await dialog.findByText("Enter a valid email address"),
-    ).toBeDefined();
-    expect(await dialog.findByText("Enter your password")).toBeDefined();
+    ).toBeInTheDocument();
+    expect(await dialog.findByText("Enter your password")).toBeInTheDocument();
   });
 
   it("サインアップ表示に切り替えるとパスワード確認欄が表示される", async () => {
-    const dialog = openDialog();
-    fireEvent.click(dialog.getByRole("button", { name: "Sign up" }));
-    expect(await dialog.findByLabelText("Confirm password")).toBeDefined();
+    const user = userEvent.setup();
+    const dialog = await openDialog(user);
+    await user.click(dialog.getByRole("button", { name: "Sign up" }));
+    expect(
+      await dialog.findByLabelText("Confirm password"),
+    ).toBeInTheDocument();
   });
 
   it("サインアップ表示に氏名の入力欄が表示される", async () => {
-    const dialog = openDialog();
-    fireEvent.click(dialog.getByRole("button", { name: "Sign up" }));
-    expect(await dialog.findByLabelText("First name")).toBeDefined();
-    expect(await dialog.findByLabelText("Last name")).toBeDefined();
+    const user = userEvent.setup();
+    const dialog = await openDialog(user);
+    await user.click(dialog.getByRole("button", { name: "Sign up" }));
+    expect(await dialog.findByLabelText("First name")).toBeInTheDocument();
+    expect(await dialog.findByLabelText("Last name")).toBeInTheDocument();
   });
 
   it("氏名が未入力の場合はサインアップできない", async () => {
-    const dialog = openDialog();
-    fireEvent.click(dialog.getByRole("button", { name: "Sign up" }));
+    const user = userEvent.setup();
+    const dialog = await openDialog(user);
+    await user.click(dialog.getByRole("button", { name: "Sign up" }));
     await dialog.findByLabelText("First name");
 
-    fireEvent.click(dialog.getByRole("button", { name: "Sign up" }));
+    await user.click(dialog.getByRole("button", { name: "Sign up" }));
 
-    expect(await dialog.findByText("Enter your first name")).toBeDefined();
-    expect(await dialog.findByText("Enter your last name")).toBeDefined();
+    expect(
+      await dialog.findByText("Enter your first name"),
+    ).toBeInTheDocument();
+    expect(await dialog.findByText("Enter your last name")).toBeInTheDocument();
   });
 
   it("Sign up ボタンからサインアップフォームを直接開ける", async () => {
+    const user = userEvent.setup();
     render(<AuthDialog />);
-    fireEvent.click(screen.getByRole("button", { name: "Sign up" }));
+    await user.click(screen.getByRole("button", { name: "Sign up" }));
     const dialog = within(screen.getByRole("dialog"));
-    expect(await dialog.findByLabelText("Confirm password")).toBeDefined();
+    expect(
+      await dialog.findByLabelText("Confirm password"),
+    ).toBeInTheDocument();
   });
 });
