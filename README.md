@@ -6,8 +6,7 @@ English | [日本語](./README.ja.md)
 
 ## Overview
 
-A video-sharing app for uploading and playing videos.
-Sign in to post videos, then pick them from the list to watch.
+A simple video-sharing app where you can upload and play videos. Sign in to post videos and watch them from the list.
 
 ### Demo
 
@@ -16,7 +15,7 @@ https://video-sharing-app-sand.vercel.app
 - Browsing and playing videos requires no sign-in
 - Sign up to try uploading and managing videos
 - This is a test deployment; posted data may be deleted without notice
-- The app runs on free plans, so the number of uploads is limited and the service may be temporarily unavailable
+- The app runs on free plans, so the number of uploads is limited and it may be temporarily unavailable
 
 ### Key Features
 
@@ -72,6 +71,7 @@ Video files are uploaded directly from the browser to Mux (Direct Upload), and a
 ```
 .
 ├── .github/             # PR template & CI workflows
+├── docs/                # Screenshots
 ├── drizzle/             # DB migration files
 ├── e2e/                 # Playwright E2E tests
 ├── public/              # Static files
@@ -147,3 +147,7 @@ Run everything from the repository root.
 ## Dev Server URL
 
 http://localhost:3000
+
+---
+
+⭐ If you found this project helpful, I would really appreciate a star.
