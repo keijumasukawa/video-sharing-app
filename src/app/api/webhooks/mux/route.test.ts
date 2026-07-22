@@ -1,5 +1,7 @@
 import { createHmac } from "node:crypto";
+import { and, eq } from "drizzle-orm";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { videos } from "@/db/schema";
 import { POST } from "./route";
 
 vi.mock("server-only", () => ({}));
@@ -80,8 +82,20 @@ describe("POST /api/webhooks/mux", () => {
       }),
     );
     expect(response.status).toBe(200);
-    expect(setMock).toHaveBeenCalledWith(
-      expect.objectContaining({ muxAssetId: "asset-1", status: "preparing" }),
+    expect(setMock).toHaveBeenNthCalledWith(1, { muxAssetId: "asset-1" });
+    expect(setMock).toHaveBeenNthCalledWith(2, { status: "preparing" });
+  });
+
+  it("video.upload.asset_created は status 単独の更新に waiting の条件を付ける", async () => {
+    await POST(
+      buildSignedRequest({
+        type: "video.upload.asset_created",
+        data: { id: "upload-1", asset_id: "asset-1" },
+      }),
+    );
+    expect(whereMock).toHaveBeenNthCalledWith(
+      2,
+      and(eq(videos.muxUploadId, "upload-1"), eq(videos.status, "waiting")),
     );
   });
 
