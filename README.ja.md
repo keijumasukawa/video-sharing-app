@@ -99,6 +99,7 @@ pnpm dev       # 開発サーバーの起動
 | `MUX_TOKEN_ID` | Mux のアクセストークンID |
 | `MUX_TOKEN_SECRET` | Mux のアクセストークンシークレット |
 | `MUX_WEBHOOK_SECRET` | Mux の Webhook 署名シークレット |
+| `MUX_UPLOAD_CORS_ORIGIN` | アップロードを許可するオリジン(未設定時は `*`。本番では本番URLを設定する) |
 
 ## 開発コマンド
 
