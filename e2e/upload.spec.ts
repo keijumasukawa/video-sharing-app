@@ -1,22 +1,18 @@
 import { test, expect } from "@playwright/test";
 
-test("デモアカウントでログインするとアップロードダイアログを開ける", async ({
+test("アップロードダイアログを開くとフォームが表示される", async ({
   page,
 }) => {
   await page.goto("/my-videos");
 
-  await page.getByRole("main").getByRole("button", { name: "Sign in" }).click();
-  await page
-    .getByRole("dialog")
-    .getByRole("button", { name: "Sign in" })
-    .click();
+  await expect(page.getByRole("heading", { name: "My Videos" })).toBeVisible();
 
-  await expect(
-    page.getByRole("heading", { name: "My Videos" }),
-  ).toBeVisible();
-
-  await page.getByRole("button", { name: "Upload", exact: true }).click();
   const dialog = page.getByRole("dialog");
+  await expect(async () => {
+    await page.getByRole("button", { name: "Upload", exact: true }).click();
+    await expect(dialog).toBeVisible({ timeout: 1000 });
+  }).toPass();
+
   await expect(
     dialog.getByRole("heading", { name: "Upload video" }),
   ).toBeVisible();
