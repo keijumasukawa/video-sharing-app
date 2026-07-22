@@ -82,7 +82,7 @@ export const videosRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       const upload = await getMux().video.uploads.create({
-        cors_origin: "*",
+        cors_origin: process.env.MUX_UPLOAD_CORS_ORIGIN ?? "*",
         new_asset_settings: {
           playback_policies: ["public"],
         },

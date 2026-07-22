@@ -99,6 +99,7 @@ Environment variables go in `.env.local`.
 | `MUX_TOKEN_ID` | Mux access token ID |
 | `MUX_TOKEN_SECRET` | Mux access token secret |
 | `MUX_WEBHOOK_SECRET` | Mux webhook signing secret |
+| `MUX_UPLOAD_CORS_ORIGIN` | Origin allowed to upload (defaults to `*` when unset; set the production URL in production) |
 
 ## Development Commands
 
