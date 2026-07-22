@@ -6,11 +6,17 @@ English | [日本語](./README.ja.md)
 
 ## Overview
 
-A browser-based video-sharing application. Users can upload videos and play them back from a list.
+A video-sharing app for uploading and playing videos.
+Sign in to post videos, then pick them from the list to watch.
 
 ### Demo
 
 https://video-sharing-app-sand.vercel.app
+
+- Browsing and playing videos requires no sign-in
+- Sign up to try uploading and managing videos
+- This is a test deployment; posted data may be deleted without notice
+- The app runs on free plans, so the number of uploads is limited and the service may be temporarily unavailable
 
 ### Key Features
 
@@ -18,6 +24,16 @@ https://video-sharing-app-sand.vercel.app
 - Video upload
 - Video management (listing, editing, multi-select deletion)
 - User authentication (sign-up / sign-in)
+
+### Screenshots
+
+| Video list | Playback |
+| --- | --- |
+| ![Video list](docs/screenshots/videos.png) | ![Playback](docs/screenshots/player.png) |
+
+| Video management | Video upload |
+| --- | --- |
+| ![Video management](docs/screenshots/my-videos.png) | ![Video upload](docs/screenshots/upload-dialog.png) |
 
 ## Tech Stack
 
