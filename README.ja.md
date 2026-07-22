@@ -6,13 +6,18 @@
 
 ## プロジェクト概要
 
-ブラウザで動作する動画共有アプリケーション。ユーザーが動画をアップロードし、一覧から選んで再生できることを目指す。
+ブラウザで動作する動画共有アプリケーション。ユーザーが動画をアップロードし、一覧から選んで再生できる。
 
-### 主要機能(予定)
+### デモ
 
-- 動画アップロード
+https://video-sharing-app-sand.vercel.app
+
+### 主要機能
+
 - 動画一覧・再生
-- ユーザー認証(Supabase Auth)
+- 動画アップロード
+- 動画管理(動画一覧・編集・複数選択削除)
+- ユーザー認証(サインアップ / サインイン)
 
 ## 技術スタック
 
@@ -22,17 +27,16 @@
 | フレームワーク | Next.js(App Router) | 16.x |
 | API層 | tRPC(+ TanStack Query) | 11.x |
 | 認証・データベース | Supabase(Auth / PostgreSQL) | - |
-| ORM | Drizzle ORM | - |
+| ORM | Drizzle ORM | 0.45.x |
 | 動画基盤 | Mux(アップロード・エンコード・再生) | - |
 | スタイリング | Tailwind CSS | 4.x |
 | UIコンポーネント | shadcn/ui | - |
-| 単体・結合テスト | Vitest | - |
-| E2Eテスト | Playwright | - |
+| フォーム | React Hook Form + Zod | 7.x / 4.x |
+| 単体・結合テスト | Vitest + Testing Library | 4.x / 16.x |
+| E2Eテスト | Playwright | 1.x |
 | パッケージ管理 | pnpm | 11.x |
 | CI/CD | GitHub Actions | - |
 | デプロイ | Vercel | - |
-
-<!-- バージョンはスキャフォールド後に実際の値へ同期すること -->
 
 ## アーキテクチャ(動画のアップロード・再生)
 
@@ -52,6 +56,7 @@
 ```
 .
 ├── .github/             # PRテンプレート・CIワークフロー
+├── drizzle/             # DBマイグレーションファイル
 ├── e2e/                 # Playwright E2Eテスト
 ├── public/              # 静的ファイル
 ├── src/
@@ -67,15 +72,21 @@
 │   │       ├── trpc/[trpc]/     # tRPC エンドポイント(fetch adapter)
 │   │       └── webhooks/mux/    # Mux Webhook ハンドラ
 │   ├── components/      # 共通コンポーネント
+│   │   ├── auth/        # 認証関連
+│   │   ├── layout/      # サイドバー・ヘッダー等のレイアウト
+│   │   ├── videos/      # 動画関連
 │   │   └── ui/          # shadcn/ui 生成コンポーネント
 │   ├── constants/       # 定数
 │   ├── db/              # Drizzle スキーマ・DB接続
+│   ├── hooks/           # 共通フック
 │   ├── lib/             # Supabase / Mux クライアント等
 │   ├── proxy.ts         # セッション更新・認証リダイレクト(Supabase Auth)
 │   ├── trpc/            # tRPC 初期化・ルーター定義・クライアント/サーバー用プロキシ
 │   └── types/           # tRPC を経由しない共有型
 ├── drizzle.config.ts    # Drizzle Kit 設定
 ├── next.config.ts       # Next.js設定
+├── playwright.config.ts # Playwright 設定
+├── vitest.config.mts    # Vitest 設定
 ├── package.json
 └── tsconfig.json
 ```
@@ -113,6 +124,9 @@ pnpm dev       # 開発サーバーの起動
 | `pnpm test:e2e` | E2Eテストの実行(Playwright) |
 | `pnpm lint` | Lintの実行 |
 | `pnpm format` | コードフォーマット |
+| `pnpm db:generate` | マイグレーションファイルの生成(Drizzle Kit) |
+| `pnpm db:migrate` | マイグレーションの適用 |
+| `pnpm db:studio` | Drizzle Studio の起動 |
 
 ## 開発サーバーのURL
 

@@ -6,13 +6,18 @@ English | [日本語](./README.ja.md)
 
 ## Overview
 
-A browser-based video sharing application. The goal is to let users upload videos and play them back from a list.
+A browser-based video-sharing application. Users can upload videos and play them back from a list.
 
-### Key Features (planned)
+### Demo
 
-- Video upload
+https://video-sharing-app-sand.vercel.app
+
+### Key Features
+
 - Video listing & playback
-- User authentication (Supabase Auth)
+- Video upload
+- Video management (listing, editing, multi-select deletion)
+- User authentication (sign-up / sign-in)
 
 ## Tech Stack
 
@@ -22,17 +27,16 @@ A browser-based video sharing application. The goal is to let users upload video
 | Framework | Next.js (App Router) | 16.x |
 | API Layer | tRPC (+ TanStack Query) | 11.x |
 | Auth & Database | Supabase (Auth / PostgreSQL) | - |
-| ORM | Drizzle ORM | - |
+| ORM | Drizzle ORM | 0.45.x |
 | Video Platform | Mux (upload / encoding / playback) | - |
 | Styling | Tailwind CSS | 4.x |
 | UI Components | shadcn/ui | - |
-| Unit & Integration Tests | Vitest | - |
-| E2E Tests | Playwright | - |
+| Forms | React Hook Form + Zod | 7.x / 4.x |
+| Unit & Integration Tests | Vitest + Testing Library | 4.x / 16.x |
+| E2E Tests | Playwright | 1.x |
 | Package Manager | pnpm | 11.x |
 | CI/CD | GitHub Actions | - |
 | Deployment | Vercel | - |
-
-<!-- Sync versions with the actual values after scaffolding -->
 
 ## Architecture (Video Upload & Playback)
 
@@ -52,6 +56,7 @@ Video files are uploaded directly from the browser to Mux (Direct Upload), and a
 ```
 .
 ├── .github/             # PR template & CI workflows
+├── drizzle/             # DB migration files
 ├── e2e/                 # Playwright E2E tests
 ├── public/              # Static files
 ├── src/
@@ -67,15 +72,21 @@ Video files are uploaded directly from the browser to Mux (Direct Upload), and a
 │   │       ├── trpc/[trpc]/     # tRPC endpoint (fetch adapter)
 │   │       └── webhooks/mux/    # Mux webhook handler
 │   ├── components/      # Shared components
+│   │   ├── auth/        # Authentication
+│   │   ├── layout/      # Layout (sidebar, header, etc.)
+│   │   ├── videos/      # Videos
 │   │   └── ui/          # shadcn/ui generated components
 │   ├── constants/       # Constants
 │   ├── db/              # Drizzle schema & DB connection
+│   ├── hooks/           # Shared hooks
 │   ├── lib/             # Supabase / Mux clients, etc.
 │   ├── proxy.ts         # Session refresh & auth redirect (Supabase Auth)
 │   ├── trpc/            # tRPC init, routers, client/server proxies
 │   └── types/           # Shared types not going through tRPC
 ├── drizzle.config.ts    # Drizzle Kit configuration
 ├── next.config.ts       # Next.js configuration
+├── playwright.config.ts # Playwright configuration
+├── vitest.config.mts    # Vitest configuration
 ├── package.json
 └── tsconfig.json
 ```
@@ -113,6 +124,9 @@ Run everything from the repository root.
 | `pnpm test:e2e` | Run E2E tests (Playwright) |
 | `pnpm lint` | Run linter |
 | `pnpm format` | Format code |
+| `pnpm db:generate` | Generate migration files (Drizzle Kit) |
+| `pnpm db:migrate` | Apply migrations |
+| `pnpm db:studio` | Launch Drizzle Studio |
 
 ## Dev Server URL
 
