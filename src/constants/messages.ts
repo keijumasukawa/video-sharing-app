@@ -5,6 +5,9 @@ export const UPLOAD_START_ERROR_MESSAGE =
 
 export const UPLOAD_ERROR_MESSAGE = "Upload failed. Please try again.";
 
+export const UPLOAD_LIMIT_ERROR_MESSAGE =
+  "Upload limit reached. Please delete existing videos and try again.";
+
 export const UPLOAD_SUCCESS_MESSAGE = "Video uploaded";
 
 export const SIGN_OUT_ERROR_MESSAGE = "Failed to log out. Please try again.";

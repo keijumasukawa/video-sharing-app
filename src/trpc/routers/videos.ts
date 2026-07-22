@@ -9,6 +9,7 @@ import {
   or,
 } from "drizzle-orm";
 import { z } from "zod";
+import { UPLOAD_LIMIT_ERROR_MESSAGE } from "@/constants/messages";
 import {
   DEFAULT_LIMIT,
   DESCRIPTION_MAX_LENGTH,
@@ -18,6 +19,7 @@ import {
 import { db } from "@/db";
 import { profiles, videos } from "@/db/schema";
 import { getMux } from "@/lib/mux";
+import { isMuxAssetLimitError } from "@/lib/mux-errors";
 import { baseProcedure, createTRPCRouter, protectedProcedure } from "../init";
 
 const cursorSchema = z
@@ -81,12 +83,22 @@ export const videosRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const upload = await getMux().video.uploads.create({
-        cors_origin: process.env.MUX_UPLOAD_CORS_ORIGIN ?? "*",
-        new_asset_settings: {
-          playback_policies: ["public"],
-        },
-      });
+      const upload = await getMux()
+        .video.uploads.create({
+          cors_origin: process.env.MUX_UPLOAD_CORS_ORIGIN ?? "*",
+          new_asset_settings: {
+            playback_policies: ["public"],
+          },
+        })
+        .catch((error: unknown) => {
+          if (isMuxAssetLimitError(error)) {
+            throw new TRPCError({
+              code: "CONFLICT",
+              message: UPLOAD_LIMIT_ERROR_MESSAGE,
+            });
+          }
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+        });
 
       if (!upload.url) {
         throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });

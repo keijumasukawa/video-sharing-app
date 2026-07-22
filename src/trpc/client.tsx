@@ -6,6 +6,7 @@ import { createTRPCClient, httpBatchLink } from "@trpc/client";
 import { createTRPCContext } from "@trpc/tanstack-react-query";
 import { useState } from "react";
 import superjson from "superjson";
+import { resolveMutationErrorMessage } from "@/lib/mutation-errors";
 import { notifyError, notifySuccess } from "@/lib/notify";
 import { makeQueryClient } from "./query-client";
 import type { AppRouter } from "./routers/_app";
@@ -31,8 +32,8 @@ function makeNotifyingMutationCache() {
         notifySuccess(message);
       }
     },
-    onError: (_error, _variables, _onMutateResult, mutation) => {
-      notifyError(mutation.meta?.errorMessage);
+    onError: (error, _variables, _onMutateResult, mutation) => {
+      notifyError(resolveMutationErrorMessage(error, mutation.meta?.errorMessage));
     },
   });
 }
