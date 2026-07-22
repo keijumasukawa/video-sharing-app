@@ -1,5 +1,5 @@
 import type Mux from "@mux/mux-node";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { videos } from "@/db/schema";
 import { getMux } from "@/lib/mux";
@@ -22,11 +22,17 @@ export async function POST(request: Request) {
       if (event.data.asset_id) {
         await db
           .update(videos)
-          .set({
-            muxAssetId: event.data.asset_id,
-            status: "preparing",
-          })
+          .set({ muxAssetId: event.data.asset_id })
           .where(eq(videos.muxUploadId, event.data.id));
+        await db
+          .update(videos)
+          .set({ status: "preparing" })
+          .where(
+            and(
+              eq(videos.muxUploadId, event.data.id),
+              eq(videos.status, "waiting"),
+            ),
+          );
       }
       break;
     }
