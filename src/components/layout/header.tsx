@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { UserActions } from "@/components/auth/user-actions";
+import { GitHubLink } from "@/components/layout/github-link";
 import { Logo } from "@/components/layout/logo";
 import { ThemeSwitcher } from "@/components/layout/theme-switcher";
 import { Separator } from "@/components/ui/separator";
@@ -21,6 +22,7 @@ export function Header({ navTrigger, user }: HeaderProps) {
         </Link>
       </div>
       <div className="flex h-full items-center gap-2 pr-4">
+        <GitHubLink />
         <ThemeSwitcher />
         <UserActions user={user} />
       </div>
