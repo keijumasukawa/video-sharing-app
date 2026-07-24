@@ -4,24 +4,24 @@
 
 <!-- 内容を更新した際は README.md(英語版)も忘れずに同期すること -->
 
-## プロジェクト概要
+## 概要
 
-動画をアップロードして再生できる、シンプルな動画共有アプリです。ログインすると動画を投稿でき、一覧から選んで管理できます。
+動画のアップロード・共有・再生ができる、シンプルなアプリ。サインインすると動画を投稿でき、一覧から管理できる。
 
 ### デモ
 
 https://video-sharing-app-sand.vercel.app
 
-- 動画の閲覧・再生はサインインなしで使えます
-- サインアップすると、動画のアップロードや管理も試せます
-- テスト公開のため、投稿されたデータは予告なく削除されることがあります
-- 無料プランで運用しているため、アップロードできる本数に上限があります。また、一時的に使えないことがあります
+- 動画の閲覧・再生は、サインインなしに利用できる
+- サインアップすると、動画のアップロードや管理の機能が利用できる
+- テスト公開のため、投稿されたデータは予告なく削除される場合がある
+- 無料プランで運用しているため、アップロードできる本数には上限があり、また、一時的に利用できない場合がある
 
 ### 主要機能
 
 - 動画一覧・再生
 - 動画アップロード
-- 動画管理(動画一覧・編集・複数選択削除)
+- 動画管理(動画一覧・編集・一括削除)
 - ユーザー認証(サインアップ / サインイン)
 
 ### スクリーンショット
@@ -55,7 +55,7 @@ https://video-sharing-app-sand.vercel.app
 
 ## アーキテクチャ(動画のアップロード・再生)
 
-動画ファイルはブラウザから Mux へ直接アップロードし(Direct Upload)、エンコード後は Mux から HLS でストリーミング再生する。動画のメタデータ(タイトル、Mux の Playback ID 等)は Supabase の PostgreSQL に保存する。Next.js は UI と Route Handler(アップロードURLの発行、Mux Webhook の受信等)を担う。クライアント⇔サーバー間のAPIは tRPC で定義し、型安全に呼び出す。DBアクセスは Drizzle ORM で行い、認可チェックは tRPC のプロシージャで実施する。
+動画ファイルはブラウザから Mux へ直接アップロードし(Direct Upload)、エンコード後は Mux から HLS でストリーミング再生する。動画のメタデータ(タイトル、Mux の Playback ID 等)は Supabase の PostgreSQL に保存する。Next.js は UI と Route Handler(アップロードURLの発行、Mux Webhook の受信等)を担う。クライアント⇔サーバー間のAPIは tRPC で定義し、エンドツーエンドの型安全性を確保する。DBアクセスは Drizzle ORM で行い、認可チェックは tRPC のプロシージャで実施する。
 
 ```
 [ブラウザ] ──動画アップロード (Direct Upload)──→ [Mux]
@@ -63,7 +63,7 @@ https://video-sharing-app-sand.vercel.app
     │                                              │
     ├─ 認証 ──────────→ [Supabase Auth]            │ Webhook(エンコード完了等)
     └─ ページ表示・API → [Next.js] ←───────────────┘
-                            └─ メタデータ保存/取得 → [Supabase PostgreSQL]
+                            └─ メタデータ取得/保存 → [Supabase PostgreSQL]
 ```
 
 ## ディレクトリ構成
@@ -98,7 +98,7 @@ https://video-sharing-app-sand.vercel.app
 │   ├── lib/             # Supabase / Mux クライアント等
 │   ├── proxy.ts         # セッション更新・認証リダイレクト(Supabase Auth)
 │   ├── trpc/            # tRPC 初期化・ルーター定義・クライアント/サーバー用プロキシ
-│   └── types/           # tRPC を経由しない共有型
+│   └── types/           # tRPC で公開しない共有型
 ├── drizzle.config.ts    # Drizzle Kit 設定
 ├── next.config.ts       # Next.js設定
 ├── playwright.config.ts # Playwright 設定
@@ -116,6 +116,8 @@ pnpm install   # 依存関係のインストール
 pnpm dev       # 開発サーバーの起動
 ```
 
+開発サーバーは http://localhost:3000 で起動する。
+
 環境変数は `.env.local` に設定する。
 
 | 変数名 | 説明 |
@@ -126,7 +128,7 @@ pnpm dev       # 開発サーバーの起動
 | `MUX_TOKEN_ID` | Mux のアクセストークンID |
 | `MUX_TOKEN_SECRET` | Mux のアクセストークンシークレット |
 | `MUX_WEBHOOK_SECRET` | Mux の Webhook 署名シークレット |
-| `MUX_UPLOAD_CORS_ORIGIN` | アップロードを許可するオリジン(未設定時は `*`。本番では本番URLを設定する) |
+| `MUX_UPLOAD_CORS_ORIGIN` | アップロードを許可するオリジン(未設定時は `*`。デプロイ時には本番URLを設定する) |
 
 ## 開発コマンド
 
@@ -143,11 +145,3 @@ pnpm dev       # 開発サーバーの起動
 | `pnpm db:generate` | マイグレーションファイルの生成(Drizzle Kit) |
 | `pnpm db:migrate` | マイグレーションの適用 |
 | `pnpm db:studio` | Drizzle Studio の起動 |
-
-## 開発サーバーのURL
-
-http://localhost:3000
-
----
-
-⭐ このプロジェクトが参考になりましたら、Star で応援していただけると嬉しいです。
