@@ -31,6 +31,15 @@ test("サイドバーを折りたたむとアイコンのみの表示になる",
   ).toBeVisible();
 });
 
+test("ヘッダーにリポジトリへのリンクが表示される", async ({ page }) => {
+  await page.goto("/videos");
+  const link = page
+    .getByRole("banner")
+    .getByRole("link", { name: "GitHub repository" });
+  await expect(link).toBeVisible();
+  await expect(link).toHaveAttribute("target", "_blank");
+});
+
 test("テーマをダークに切り替えられる", async ({ page }) => {
   await page.goto("/videos");
   await page.getByRole("button", { name: "Toggle theme" }).click();
