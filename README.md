@@ -6,7 +6,7 @@ English | [日本語](./README.ja.md)
 
 ## Overview
 
-A simple app for uploading, sharing, and playing videos. After signing in, users can post videos and manage them from a list view.
+A simple app that covers everything from video upload to sharing and playback. Once signed in, users can post videos and manage them in a list view.
 
 ### Demo
 
