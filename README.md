@@ -6,16 +6,7 @@ English | [日本語](./README.ja.md)
 
 ## Overview
 
-A simple app that covers everything from video upload to sharing and playback. Once signed in, users can post videos and manage them in a list view.
-
-### Demo
-
-https://video-sharing-app-sand.vercel.app
-
-- Videos can be browsed and played without signing in
-- Signing up enables video upload and management features
-- This is a test deployment; posted data may be deleted without notice
-- Since the app runs on free tiers, there is a limit on how many videos can be uploaded, and the service may occasionally be unavailable
+A simple app that covers everything from video upload to sharing and playback. Videos can be browsed and played without signing in; once signed in, users can post videos and manage them in a list view.
 
 ### Key Features
 
@@ -33,6 +24,11 @@ https://video-sharing-app-sand.vercel.app
 | Video management | Video upload |
 | --- | --- |
 | ![Video management](docs/screenshots/my-videos.png) | ![Video upload](docs/screenshots/upload-dialog.png) |
+
+### Notes
+
+- This is a test deployment; posted data may be deleted without notice
+- Since the app runs on free tiers, there is a limit on how many videos can be uploaded, and the service may occasionally be unavailable
 
 ## Tech Stack
 
