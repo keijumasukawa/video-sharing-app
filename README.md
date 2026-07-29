@@ -1,143 +1,139 @@
 # video-sharing-app
 
-English | [日本語](./README.ja.md)
+## 概要
 
-<!-- When the content is updated, remember to sync README.ja.md as well. -->
+動画のアップロードから共有・再生まで対応したシンプルなアプリ。閲覧・再生はサインインなしで利用でき、サインインすると動画を投稿して一覧から管理できる。
 
-## Overview
+### 主要機能
 
-A simple app that covers everything from video upload to sharing and playback. Videos can be browsed and played without signing in; once signed in, users can post videos and manage them in a list view.
+- 動画一覧・再生
+- 動画アップロード
+- 動画管理(動画一覧・編集・一括削除)
+- ユーザー認証(サインアップ / サインイン)
 
-### Key Features
+### スクリーンショット
 
-- Video list & playback
-- Video upload
-- Video management (listing, editing, bulk deletion)
-- User authentication (sign-up / sign-in)
-
-### Screenshots
-
-| Video list | Video playback |
+| 動画一覧 | 動画再生 |
 | --- | --- |
-| ![Video list](docs/screenshots/videos.png) | ![Video playback](docs/screenshots/player.png) |
+| ![動画一覧](docs/screenshots/videos.png) | ![動画再生](docs/screenshots/player.png) |
 
-| Video management | Video upload |
+| 動画管理 | 動画アップロード |
 | --- | --- |
-| ![Video management](docs/screenshots/my-videos.png) | ![Video upload](docs/screenshots/upload-dialog.png) |
+| ![動画管理](docs/screenshots/my-videos.png) | ![動画アップロード](docs/screenshots/upload-dialog.png) |
 
-### Notes
+### 注意事項
 
-- This is a test deployment; posted data may be deleted without notice
-- Since the app runs on free tiers, there is a limit on how many videos can be uploaded, and the service may occasionally be unavailable
+- テスト公開のため、投稿されたデータは予告なく削除される場合がある
+- 無料プランで運用しているため、アップロードできる本数には上限があり、また、一時的に利用できない場合がある
 
-## Tech Stack
+## 技術スタック
 
-| Category | Technology | Version |
+| 分類 | 技術 | バージョン |
 | --- | --- | --- |
-| Language | TypeScript | 5.x |
-| Framework | Next.js (App Router) | 16.x |
-| API Layer | tRPC (+ TanStack Query) | 11.x |
-| Auth & Database | Supabase (Auth / PostgreSQL) | - |
+| 言語 | TypeScript | 5.x |
+| フレームワーク | Next.js(App Router) | 16.x |
+| API層 | tRPC(+ TanStack Query) | 11.x |
+| 認証・データベース | Supabase(Auth / PostgreSQL) | - |
 | ORM | Drizzle ORM | 0.45.x |
-| Video Platform | Mux (upload / encoding / playback) | - |
-| Styling | Tailwind CSS | 4.x |
-| UI Components | shadcn/ui | - |
-| Forms | React Hook Form + Zod | 7.x / 4.x |
-| Unit & Integration Tests | Vitest + Testing Library | 4.x / 16.x |
-| E2E Tests | Playwright | 1.x |
-| Package Manager | pnpm | 11.x |
+| 動画基盤 | Mux(アップロード・エンコード・再生) | - |
+| スタイリング | Tailwind CSS | 4.x |
+| UIコンポーネント | shadcn/ui | - |
+| フォーム | React Hook Form + Zod | 7.x / 4.x |
+| 単体・結合テスト | Vitest + Testing Library | 4.x / 16.x |
+| E2Eテスト | Playwright | 1.x |
+| パッケージ管理 | pnpm | 11.x |
 | CI/CD | GitHub Actions | - |
-| Deployment | Vercel | - |
+| デプロイ | Vercel | - |
 
-## Architecture (Video Upload & Playback)
+## アーキテクチャ(動画のアップロード・再生)
 
-Video files are uploaded directly from the browser to Mux (Direct Upload); after encoding, they are streamed from Mux over HLS. Video metadata (title, Mux Playback ID, etc.) is stored in Supabase PostgreSQL. Next.js serves the UI and provides Route Handlers for tasks such as issuing upload URLs and receiving Mux webhooks. The client–server API is defined with tRPC to ensure end-to-end type safety. Database access is handled by Drizzle ORM, and authorization checks are performed in tRPC procedures.
+動画ファイルはブラウザから Mux へ直接アップロードし(Direct Upload)、エンコード後は Mux から HLS でストリーミング再生する。動画のメタデータ(タイトル、Mux の Playback ID 等)は Supabase の PostgreSQL に保存する。Next.js は UI と Route Handler(アップロードURLの発行、Mux Webhook の受信等)を担う。クライアント⇔サーバー間のAPIは tRPC で定義し、エンドツーエンドの型安全性を確保する。DBアクセスは Drizzle ORM で行い、認可チェックは tRPC のプロシージャで実施する。
 
 ```
-[Browser] ──video upload (Direct Upload)──→ [Mux]
-    │ ←──streaming playback (HLS)────────────┘
-    │                                        │
-    ├─ auth ──────────→ [Supabase Auth]      │ webhooks (encoding complete, etc.)
-    └─ pages & API ───→ [Next.js] ←──────────┘
-                           └─ metadata read/write → [Supabase PostgreSQL]
+[ブラウザ] ──動画アップロード (Direct Upload)──→ [Mux]
+    │ ←──ストリーミング再生 (HLS)──────────────────┘
+    │                                              │
+    ├─ 認証 ──────────→ [Supabase Auth]            │ Webhook(エンコード完了等)
+    └─ ページ表示・API → [Next.js] ←───────────────┘
+                            └─ メタデータ取得/保存 → [Supabase PostgreSQL]
 ```
 
-## Directory Structure
+## ディレクトリ構成
 
 ```
 .
-├── .github/             # PR template & CI workflows
-├── docs/                # Screenshots
-├── drizzle/             # DB migration files
-├── e2e/                 # Playwright E2E tests
-├── public/              # Static files
+├── .github/             # PRテンプレート・CIワークフロー
+├── docs/                # スクリーンショット
+├── drizzle/             # DBマイグレーションファイル
+├── e2e/                 # Playwright E2Eテスト
+├── public/              # 静的ファイル
 ├── src/
 │   ├── app/
-│   │   ├── page.tsx             # / → redirects to /videos
-│   │   ├── (main)/              # Main layout (sidebar + header)
-│   │   │   ├── videos/          # Public video list
-│   │   │   └── my-videos/       # Video management (auth required)
-│   │   ├── (player)/            # Player layout
-│   │   │   └── videos/[videoId]/  # Video playback page
-│   │   ├── auth/callback/       # Auth callback endpoint (Supabase Auth)
+│   │   ├── page.tsx             # / → /videos へリダイレクト
+│   │   ├── (main)/              # メインレイアウト(サイドバー + ヘッダー)
+│   │   │   ├── videos/          # 公開動画一覧
+│   │   │   └── my-videos/       # 動画管理(認証必須)
+│   │   ├── (player)/            # プレイヤーレイアウト
+│   │   │   └── videos/[videoId]/  # 動画再生ページ
+│   │   ├── auth/callback/       # 認証コールバックエンドポイント(Supabase Auth)
 │   │   └── api/
-│   │       ├── trpc/[trpc]/     # tRPC endpoint (fetch adapter)
-│   │       └── webhooks/mux/    # Mux webhook handler
-│   ├── components/      # Shared components
-│   │   ├── auth/        # Authentication
-│   │   ├── layout/      # Layout (sidebar, header, etc.)
-│   │   ├── videos/      # Videos
-│   │   └── ui/          # Components generated by shadcn/ui
-│   ├── constants/       # Constants
-│   ├── db/              # Drizzle schema & DB connection
-│   ├── hooks/           # Shared hooks
-│   ├── lib/             # Supabase / Mux clients, etc.
-│   ├── proxy.ts         # Session refresh & auth redirect (Supabase Auth)
-│   ├── trpc/            # tRPC init, routers, client/server proxies
-│   └── types/           # Shared types not exposed via tRPC
-├── drizzle.config.ts    # Drizzle Kit configuration
-├── next.config.ts       # Next.js configuration
-├── playwright.config.ts # Playwright configuration
-├── vitest.config.mts    # Vitest configuration
+│   │       ├── trpc/[trpc]/     # tRPC エンドポイント(fetch adapter)
+│   │       └── webhooks/mux/    # Mux Webhook ハンドラ
+│   ├── components/      # 共通コンポーネント
+│   │   ├── auth/        # 認証関連
+│   │   ├── layout/      # サイドバー・ヘッダー等のレイアウト
+│   │   ├── videos/      # 動画関連
+│   │   └── ui/          # shadcn/ui 生成コンポーネント
+│   ├── constants/       # 定数
+│   ├── db/              # Drizzle スキーマ・DB接続
+│   ├── hooks/           # 共通フック
+│   ├── lib/             # Supabase / Mux クライアント等
+│   ├── proxy.ts         # セッション更新・認証リダイレクト(Supabase Auth)
+│   ├── trpc/            # tRPC 初期化・ルーター定義・クライアント/サーバー用プロキシ
+│   └── types/           # tRPC で公開しない共有型
+├── drizzle.config.ts    # Drizzle Kit 設定
+├── next.config.ts       # Next.js設定
+├── playwright.config.ts # Playwright 設定
+├── vitest.config.mts    # Vitest 設定
 ├── package.json
 └── tsconfig.json
 ```
 
-## Setup
+## セットアップ
 
-Prerequisites: Node.js 24+ and pnpm 11+
+必要環境: Node.js 24以上 / pnpm 11以上
 
 ```bash
-pnpm install   # Install dependencies
-pnpm dev       # Start the dev server
+pnpm install   # 依存関係のインストール
+pnpm dev       # 開発サーバーの起動
 ```
 
-The dev server runs at http://localhost:3000.
+開発サーバーは http://localhost:3000 で起動する。
 
-Configure environment variables in `.env.local`.
+環境変数は `.env.local` に設定する。
 
-| Variable | Description |
+| 変数名 | 説明 |
 | --- | --- |
-| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase publishable key |
-| `DATABASE_URL` | Supabase PostgreSQL connection string (Transaction pooler) |
-| `MUX_TOKEN_ID` | Mux access token ID |
-| `MUX_TOKEN_SECRET` | Mux access token secret |
-| `MUX_WEBHOOK_SECRET` | Mux webhook signing secret |
-| `MUX_UPLOAD_CORS_ORIGIN` | Allowed origin for uploads (defaults to `*` when unset; set your production URL when deploying) |
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase プロジェクトのURL |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase の Publishable key |
+| `DATABASE_URL` | Supabase PostgreSQL の接続文字列(Transaction pooler) |
+| `MUX_TOKEN_ID` | Mux のアクセストークンID |
+| `MUX_TOKEN_SECRET` | Mux のアクセストークンシークレット |
+| `MUX_WEBHOOK_SECRET` | Mux の Webhook 署名シークレット |
+| `MUX_UPLOAD_CORS_ORIGIN` | アップロードを許可するオリジン(未設定時は `*`。デプロイ時には本番URLを設定する) |
 
-## Development Commands
+## 開発コマンド
 
-Run all commands from the repository root.
+すべてリポジトリルートで実行する。
 
-| Command | Description |
+| コマンド | 説明 |
 | --- | --- |
-| `pnpm dev` | Start the dev server |
-| `pnpm build` | Production build |
-| `pnpm test` | Run unit & integration tests (Vitest) |
-| `pnpm test:e2e` | Run E2E tests (Playwright) |
-| `pnpm lint` | Run the linter |
-| `pnpm format` | Format code |
-| `pnpm db:generate` | Generate migration files (Drizzle Kit) |
-| `pnpm db:migrate` | Apply migrations |
-| `pnpm db:studio` | Launch Drizzle Studio |
+| `pnpm dev` | 開発サーバーの起動 |
+| `pnpm build` | 本番用ビルド |
+| `pnpm test` | 単体・結合テストの実行(Vitest) |
+| `pnpm test:e2e` | E2Eテストの実行(Playwright) |
+| `pnpm lint` | Lintの実行 |
+| `pnpm format` | コードフォーマット |
+| `pnpm db:generate` | マイグレーションファイルの生成(Drizzle Kit) |
+| `pnpm db:migrate` | マイグレーションの適用 |
+| `pnpm db:studio` | Drizzle Studio の起動 |
